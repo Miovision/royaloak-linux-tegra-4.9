@@ -461,6 +461,7 @@
 
         cell-dtr {
             status = "okay";
+            gpio-hog;
             output-low;
             gpios = <TEGRA_GPIO(Z, 0) GPIO_ACTIVE_HIGH>;
             line-name = "CELL-DTR";
