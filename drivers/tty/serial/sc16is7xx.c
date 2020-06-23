@@ -964,6 +964,9 @@ static void sc16is7xx_set_termios(struct uart_port *port,
 	sc16is7xx_port_write(port, SC16IS7XX_EFR_REG, flow);
 	regcache_cache_bypass(s->regmap, false);
 
+	/* Inform the base serial core that this device provides Auto CTS, RTS, and XON/XOFF */
+	port->status |= UPSTAT_AUTOCTS | UPSTAT_AUTORTS | UPSTAT_AUTOXOFF;
+
 	/* Update LCR register */
 	sc16is7xx_port_write(port, SC16IS7XX_LCR_REG, lcr);
 
