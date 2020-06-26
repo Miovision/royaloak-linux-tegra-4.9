@@ -1,6 +1,4 @@
 /*
- * Top level DTS file for CVM:P2888-0001 and CVB:P2822-0000.
- *
  * Copyright (c) 2020, Miovision.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -82,29 +80,15 @@
     };
 
     // Xavier Module I2C-2 --> Pushbutton LED
-     i2c@0c240000 {
-         status = "okay";
+    i2c@0c240000 {
+        status = "okay";
 
         led@64 {
             status= "okay";
             compatible = "leds-is31fl319x";
-            led-max-microamp = 10000
+            led-max-microamp = <10000>;
             reg = <0x64>;
         };
-
-    };
-
-   // Xavier Module I2C-3 --> Power LED
-     i2c@03180000 {
-         status = "okay";
-
-        led@64 {
-            status= "okay";
-            compatible = "leds-is31fl319x";
-            led-max-microamp = 10000
-            reg = <0x64>;
-        };
-
     };
 
     //*********************************************************************
