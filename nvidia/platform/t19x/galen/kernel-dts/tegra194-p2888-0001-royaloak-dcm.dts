@@ -20,11 +20,11 @@
     compatible = "nvidia,jetson-xavier", "nvidia,tegra194";
     nvidia,dtsfilename = __FILE__;
 
-	// Default boot ARGS
+    // Default boot ARGS
     chosen {
-		bootargs ="console=ttyTCU0,115200";
-		board-has-eeprom;
-	};
+        bootargs ="console=ttyTCU0,115200";
+        board-has-eeprom;
+    };
 
 
     //*********************************************************************
@@ -107,7 +107,7 @@
 
         // The PINMUX needed to be adjusted to put the CS line as a GPIO pin which is software controlled,
         // the hardware control was dropping the CS line between transactions resetting the TPM.
-       	cs-gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Z,6) GPIO_ACTIVE_HIGH>;
+           cs-gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Z,6) GPIO_ACTIVE_HIGH>;
 
         spi@0 {
             reg = <0x0>;
@@ -144,45 +144,45 @@
     // GPIO Input Buttons, configured to trigger keyboard events.
     //*********************************************************************
 
-	gpio-keys {
-		compatible = "gpio-keys";
-		gpio-keys,name = "gpio-keys";
+    gpio-keys {
+        compatible = "gpio-keys";
+        gpio-keys,name = "gpio-keys";
 
         // BUT_CENTERn => GPIO18 => SOC_GPIO40 GPIO03 => P(Q,4) *
-		button_center {
-			label = "BUTTON-CENTERn";
+        button_center {
+            label = "BUTTON-CENTERn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Q, 4) GPIO_ACTIVE_HIGH>;
-			linux,code = <KEY_ENTER>;
-		};
+            linux,code = <KEY_ENTER>;
+        };
 
         // BUT_UPn => GPIO33 => SOC_GPIO05  GPIO3 => P(P,5) *
         button_up {
             label = "BUTTON-UPn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(P, 5) GPIO_ACTIVE_HIGH>;
-			linux,code = <KEY_UP>;
+            linux,code = <KEY_UP>;
         };
 
         // BUT_DOWNn => GPIO17 => SOC_GPIO21 GPIO3 => P(Q,1) *
         button_down {
             label = "BUTTON-DOWNn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Q, 1) GPIO_ACTIVE_HIGH>;
-			linux,code = <KEY_DOWN>;
+            linux,code = <KEY_DOWN>;
         };
 
         // BUT_LEFTn => GPIO29 => SOC_GPIO31   GPIO3 => P(S,6) *
         button_left {
             label = "BUTTON-LEFTn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(S, 6) GPIO_ACTIVE_HIGH>;
-			linux,code = <KEY_LEFT>;
+            linux,code = <KEY_LEFT>;
         };
 
         // BUT_RIGHTn => GPIO11 => SOC_GPIO30   GPIO3 => P(S,5) *
         button_right {
             label = "BUTTON-RIGHTn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(S, 5) GPIO_ACTIVE_HIGH>;
-			linux,code = <KEY_RIGHT>;
+            linux,code = <KEY_RIGHT>;
         };
-	};
+    };
 
     //*********************************************************************
     // GPIO Setup
