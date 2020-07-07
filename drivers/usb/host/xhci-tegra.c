@@ -1,7 +1,7 @@
 /*
  * NVIDIA Tegra xHCI host controller driver
  *
- * Copyright (c) 2014-2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2014-2020, NVIDIA CORPORATION. All rights reserved.
  * Copyright (C) 2014 Google, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -235,6 +235,16 @@ static struct usb_device_id max_burst_quirk_list[] = {
 	{ USB_DEVICE_SS(0x0bc2, 0xab26) },
 	/* Seagate Expansion Portable Drive 1TB */
 	{ USB_DEVICE_SS(0x0bc2, 0x231a) },
+	/* JMicron TEYADI External SSD */
+	{ USB_DEVICE_SS(0x152d, 0x0576) },
+	/* JMicron JMS578 USB 3.1 to SATA Bridge */
+	{ USB_DEVICE_SS(0x152d, 0x0578) },
+	/* JMicron AXAGON USB to SATA adaptor */
+	{ USB_DEVICE_SS(0x152d, 0x1576) },
+	/* Inateck SS USB-SATA adaptor */
+	{ USB_DEVICE_SS(0x0080, 0xa001) },
+	/* M2X SSD */
+	{ USB_DEVICE_SS(0x152d, 0x0583) },
 	{ }  /* terminating entry must be last */
 };
 
@@ -1630,6 +1640,11 @@ static irqreturn_t tegra_xusb_mbox_thread(int irq, void *data)
 	u32 value;
 
 	mutex_lock(&tegra->lock);
+
+	if (tegra->suspended) {
+		mutex_unlock(&tegra->lock);
+		return IRQ_HANDLED;
+	}
 
 	value = fpci_readl(tegra, tegra->soc->cfg_aru_mbox_data_out);
 	tegra_xusb_mbox_unpack(&msg, value);

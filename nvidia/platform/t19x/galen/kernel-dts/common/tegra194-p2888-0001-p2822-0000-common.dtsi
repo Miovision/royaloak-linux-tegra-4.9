@@ -1,7 +1,7 @@
 /*
  * Common include DTS file for CVM:P2888-0001 and CVB:P2822-0000 variants.
  *
- * Copyright (c) 2018-2019, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2018-2020, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,15 @@
 		};
 	};
 
+	bluedroid_pm {
+		compatible = "nvidia,tegra-bluedroid_pm";
+		bluedroid_pm,reset-gpio = <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 6) 0>;
+		bluedroid_pm,host-wake-gpio = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Y, 0) 0>;
+		bluedroid_pm,ext-wake-gpio = <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 7) 0>;
+		interrupt-parent = <&tegra_main_gpio>;
+		interrupts = <TEGRA194_MAIN_GPIO(Y, 0) 0x01>;
+	};
+
 	spi@c260000 {
 		status = "disabled";
 	};
@@ -76,8 +85,19 @@
 			compatible = "spidev";
 			reg = <0x0>;
 			spi-max-frequency = <33000000>;
-			nvidia,enable-hw-based-cs;
-			nvidia,rx-clk-tap-delay = <0x11>;
+			controller-data {
+				nvidia,enable-hw-based-cs;
+				nvidia,rx-clk-tap-delay = <0x11>;
+			};
+		};
+		spi@1 {
+			compatible = "spidev";
+			reg = <0x1>;
+			spi-max-frequency = <33000000>;
+			controller-data {
+				nvidia,enable-hw-based-cs;
+				nvidia,rx-clk-tap-delay = <0x11>;
+			};
 		};
 	};
 
@@ -320,11 +340,6 @@
 				};
 			};
 		};
-	};
-
-	hardwood {
-		compatible = "nvidia,denver-hardwood";
-		interrupts = <0 24 0x4>;
 	};
 
 	ufshci@2450000 {

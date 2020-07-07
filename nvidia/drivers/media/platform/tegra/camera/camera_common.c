@@ -615,7 +615,9 @@ int camera_common_try_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
 		    mf->height == frmfmt[s_data->sensor_mode_id].size.height) {
 			s_data->fmt_width = mf->width;
 			s_data->fmt_height = mf->height;
-		} else {
+		}
+		else
+		{
 			mf->width = s_data->fmt_width;
 			mf->height = s_data->fmt_height;
 			dev_dbg(sd->dev,

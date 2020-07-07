@@ -1,7 +1,7 @@
 /*
  * GK20A Graphics
  *
- * Copyright (c) 2011-2018, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2011-2020, NVIDIA CORPORATION.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -3128,11 +3128,22 @@ int gk20a_alloc_obj_ctx(struct channel_gk20a  *c, u32 class_num, u32 flags)
 			goto out;
 		}
 
-		/* init golden image, ELPG enabled after this is done */
+		/* init golden image */
 		err = gr_gk20a_init_golden_ctx_image(g, c);
 		if (err != 0) {
 			nvgpu_err(g,
 				"fail to init golden ctx image");
+			goto out;
+		}
+
+		/* Re-enable ELPG now that golden image has been initialized.
+		 * The PMU PG init code may already have tried to enable elpg, but
+		 * would not have been able to complete this action since the golden
+		 * image hadn't been initialized yet, so do this now.
+		 */
+		err = nvgpu_pmu_reenable_elpg(g);
+		if (err != 0) {
+			nvgpu_err(g, "fail to re-enable elpg");
 			goto out;
 		}
 
@@ -3462,6 +3473,8 @@ static int gr_gk20a_init_gr_config(struct gk20a *g, struct gr_gk20a *gr)
 		gr->sm_to_cluster = nvgpu_kzalloc(g, gr->gpc_count *
 					gr->max_tpc_per_gpc_count *
 					sm_per_tpc * sizeof(struct sm_info));
+		if (!gr->sm_to_cluster)
+			goto clean_up;
 	} else {
 		memset(gr->sm_to_cluster, 0, gr->gpc_count *
 					gr->max_tpc_per_gpc_count *
@@ -4681,6 +4694,9 @@ static int gk20a_init_gr_prepare(struct gk20a *g)
 	/* Disable elcg until it gets enabled later in the init*/
 	nvgpu_cg_elcg_disable_no_wait(g);
 
+	/* Disable blcg until it gets enabled later in the init*/
+	nvgpu_cg_blcg_disable_no_wait(g);
+
 	/* enable fifo access */
 	gk20a_writel(g, gr_gpfifo_ctl_r(),
 		gr_gpfifo_ctl_access_enabled_f() |
@@ -5001,7 +5017,6 @@ int gk20a_init_gr_support(struct gk20a *g)
 		}
 	}
 
-	nvgpu_cg_elcg_enable_no_wait(g);
 	/* GR is inialized, signal possible waiters */
 	g->gr.initialized = true;
 	nvgpu_cond_signal(&g->gr.init_wq);
@@ -5148,6 +5163,7 @@ int gk20a_gr_reset(struct gk20a *g)
 
 	nvgpu_cg_init_gr_load_gating_prod(g);
 	nvgpu_cg_elcg_enable_no_wait(g);
+	nvgpu_cg_blcg_enable_no_wait(g);
 
 	/* GR is inialized, signal possible waiters */
 	g->gr.initialized = true;

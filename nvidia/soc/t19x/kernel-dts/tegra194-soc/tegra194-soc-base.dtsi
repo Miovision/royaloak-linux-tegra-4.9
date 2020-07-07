@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2014-2020, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -690,8 +690,13 @@
 		compatible = "arm,cortex-a15-gic";
 		#interrupt-cells = <3>;
 		interrupt-controller;
-		reg = <0x0 0x03881000 0x0 0x00001000
-		       0x0 0x03882000 0x0 0x00002000>;
+		reg = <0 0x03881000 0 0x1000>,
+			<0 0x03882000 0 0x2000>,
+			<0 0x03884000 0 0x2000>,
+			<0 0x03886000 0 0x2000>;
+		interrupts = <GIC_PPI 9
+			(GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>;
+		interrupt-parent = <&intc>;
 		status = "disabled";
 	};
 
@@ -768,6 +773,7 @@
 		clocks = <&bpmp_clks TEGRA194_CLK_FUSE>,
 		         <&bpmp_clks TEGRA194_CLK_CLK_M>;
 		clock-names = "fuse", "clk_m";
+		nvidia,clock-always-on;
 		status = "disabled";
 		efuse-burn {
 			compatible = "nvidia,tegra194-efuse-burn";
@@ -1891,6 +1897,25 @@
 		#interrupt-cells = <2>;
 		gpio-ranges =
 			<&tegra_pinctrl TEGRA194_AON_GPIO_BASE(AA) TEGRA_PIN_BASE(AA) TEGRA194_AON_GPIO_RANGE(AA, EE) >;
+	};
+
+	tegra_gte_lic: gte@3aa0000 {
+		compatible = "nvidia,tegra194-gte-lic";
+		reg = <0x0 0x3aa0000 0x0 0x10000>;
+		interrupts = <0 11 0x4>;
+		nvidia,int-threshold = <1>;
+		nvidia,num-slices = <11>;
+		status = "disabled";
+	};
+
+	tegra_gte_aon: gte@c1e0000 {
+		compatible = "nvidia,tegra194-gte-aon";
+		reg = <0x0 0xc1e0000 0x0 0x10000>;
+		interrupts = <0 13 0x4>;
+		nvidia,int-threshold = <1>;
+		nvidia,num-slices = <3>;
+		nvidia,gpio-controller = <&tegra_aon_gpio>;
+		status = "disabled";
 	};
 
 	tegra_wdt:watchdog@30c0000 {

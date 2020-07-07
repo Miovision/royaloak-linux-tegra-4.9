@@ -253,6 +253,12 @@ static void tegra_channel_update_format(struct tegra_channel *chan,
 	chan->format.height = height;
 	chan->format.pixelformat = fourcc;
 	chan->format.bytesperline = preferred_stride ?: bytesperline;
+	chan->buffer_offset[0] = 0;
+	chan->interlace_bplfactor = 1;
+
+	dev_dbg(&chan->video->dev,
+			"%s: Resolution= %dx%d bytesperline=%d\n",
+			__func__, width, height, chan->format.bytesperline);
 
 	tegra_channel_fmt_align(chan, chan->fmtinfo,
 				&chan->format.width,
@@ -332,7 +338,8 @@ static void tegra_channel_fmts_bitmap_init(struct tegra_channel *chan)
 	tegra_channel_update_format(chan, chan->format.width,
 				chan->format.height,
 				chan->fmtinfo->fourcc,
-				&chan->fmtinfo->bpp, 0);
+				&chan->fmtinfo->bpp,
+				chan->preferred_stride);
 
 	if (chan->total_ports > 1)
 		update_gang_mode(chan);
@@ -910,7 +917,8 @@ int tegra_channel_set_stream(struct tegra_channel *chan, bool on)
 		tegra_camera_update_clknbw(chan, false);
 	}
 
-	atomic_set(&chan->is_streaming, on);
+	if (!ret)
+		atomic_set(&chan->is_streaming, on);
 	return ret;
 }
 
@@ -1125,7 +1133,8 @@ tegra_channel_s_dv_timings(struct file *file, void *fh,
 
 	if (!ret)
 		tegra_channel_update_format(chan, bt->width, bt->height,
-			chan->fmtinfo->fourcc, &chan->fmtinfo->bpp, 0);
+			chan->fmtinfo->fourcc, &chan->fmtinfo->bpp,
+			chan->preferred_stride);
 
 	if (chan->total_ports > 1)
 		update_gang_mode(chan);
@@ -1225,6 +1234,14 @@ int tegra_channel_s_ctrl(struct v4l2_ctrl *ctrl)
 		break;
 	case TEGRA_CAMERA_CID_LOW_LATENCY:
 		chan->low_latency = ctrl->val;
+		break;
+	case TEGRA_CAMERA_CID_VI_PREFERRED_STRIDE:
+		chan->preferred_stride = ctrl->val;
+		tegra_channel_update_format(chan, chan->format.width,
+				chan->format.height,
+				chan->format.pixelformat,
+				&chan->fmtinfo->bpp,
+				chan->preferred_stride);
 		break;
 	default:
 		dev_err(&chan->video->dev, "%s: Invalid ctrl %u\n",
@@ -1359,6 +1376,16 @@ static const struct v4l2_ctrl_config common_custom_ctrls[] = {
 		.min = 0,
 		.max = 1,
 		.step = 1,
+	},
+	{
+		.ops = &channel_ctrl_ops,
+		.id = TEGRA_CAMERA_CID_VI_PREFERRED_STRIDE,
+		.name = "Preferred Stride",
+		.type = V4L2_CTRL_TYPE_INTEGER,
+		.min = 0,
+		.max = 65535,
+		.step = 1,
+		.def = 0,
 	},
 };
 
@@ -1913,6 +1940,10 @@ __tegra_channel_set_format(struct tegra_channel *chan,
 	if (!ret) {
 		chan->format = *pix;
 		chan->fmtinfo = vfmt;
+
+		if (chan->preferred_stride)
+			pix->bytesperline = chan->preferred_stride;
+
 		tegra_channel_update_format(chan, pix->width,
 			pix->height, vfmt->fourcc, &vfmt->bpp,
 			pix->bytesperline);
@@ -2294,7 +2325,8 @@ int tegra_channel_init(struct tegra_channel *chan)
 	tegra_channel_update_format(chan, TEGRA_DEF_WIDTH,
 				TEGRA_DEF_HEIGHT,
 				chan->fmtinfo->fourcc,
-				&chan->fmtinfo->bpp, 0);
+				&chan->fmtinfo->bpp,
+				chan->preferred_stride);
 
 	chan->buffer_offset[0] = 0;
 	/* Init bpl factor to 1, will be overidden based on interlace_type */

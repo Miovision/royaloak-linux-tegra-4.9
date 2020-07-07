@@ -52,7 +52,7 @@
 
 / {
 	model = "jetson_cv";
-	compatible = "nvidia,jetson-cv", "nvidia,tegra210";
+	compatible = "nvidia,p2597-0000+p2180-1000", "nvidia,jetson-cv", "nvidia,tegra210";
 	nvidia,dtsfilename = __FILE__;
 
 	#address-cells = <2>;
@@ -355,8 +355,19 @@
 			compatible = "spidev";
 			reg = <0x0>;
 			spi-max-frequency = <33000000>;
-			nvidia,enable-hw-based-cs;
-			nvidia,rx-clk-tap-delay = <7>;
+			controller-data {
+				nvidia,enable-hw-based-cs;
+				nvidia,rx-clk-tap-delay = <7>;
+			};
+		};
+		spi@1 {
+			compatible = "spidev";
+			reg = <0x1>;
+			spi-max-frequency = <33000000>;
+			controller-data {
+				nvidia,enable-hw-based-cs;
+				nvidia,rx-clk-tap-delay = <7>;
+			};
 		};
 	};
 
@@ -366,13 +377,10 @@
 
 		clocks = <&tegra_car TEGRA210_CLK_PLL_A>,
 			 <&tegra_car TEGRA210_CLK_PLL_A_OUT0>,
-			 <&tegra_car TEGRA210_CLK_D_AUDIO>,
 			 <&tegra_car TEGRA210_CLK_EXTERN1>;
-		clock-names = "pll_a", "pll_a_out0", "ahub", "extern1";
-		assigned-clocks = <&tegra_car TEGRA210_CLK_D_AUDIO>,
-				  <&tegra_car TEGRA210_CLK_EXTERN1>;
-		assigned-clock-parents = <&tegra_car TEGRA210_CLK_PLL_A_OUT0>,
-					 <&tegra_car TEGRA210_CLK_PLL_A_OUT0>;
+		clock-names = "pll_a", "pll_a_out0", "extern1";
+		assigned-clocks = <&tegra_car TEGRA210_CLK_EXTERN1>;
+		assigned-clock-parents = <&tegra_car TEGRA210_CLK_PLL_A_OUT0>;
 
 		nvidia,num-codec-link = <8>;
 
@@ -800,7 +808,7 @@
 		tach_gpio =  <&gpio TEGRA_GPIO(K, 7) GPIO_ACTIVE_LOW>; /* TEGRA_GPIO_PK7 */
 	};
 
-	i2c@7000c400 {
+	hdr40_i2c0: i2c@7000c400 {
 		nvidia,clock-always-on;
 
 		lp8557-backlight-a-wuxga-8-0@2c {
@@ -1158,7 +1166,7 @@
 		dma-names = "tx";
 	};
 
-	i2c@7000c400 {
+	hdr40_i2c1: i2c@7000c000 {
 		clock-frequency = <400000>;
 	};
 

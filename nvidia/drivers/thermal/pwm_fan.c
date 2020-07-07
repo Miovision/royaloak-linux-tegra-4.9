@@ -1,7 +1,7 @@
 /*
  * pwm_fan.c fan driver that is controlled by pwm
  *
- * Copyright (c) 2013-2019, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2013-2020, NVIDIA CORPORATION.  All rights reserved.
  *
  * Author: Anshul Jain <anshulj@nvidia.com>
  *
@@ -44,6 +44,8 @@
 #include <linux/atomic.h>
 #include <linux/sched.h>
 #include <linux/version.h>
+#include <linux/hwmon.h>
+#include <linux/hwmon-sysfs.h>
 
 #include "thermal_core.h"
 
@@ -59,8 +61,7 @@
 static void fan_update_target_pwm(struct fan_dev_data *fan_data, int val)
 {
 	if (fan_data) {
-		fan_data->requested_target_pwm = val;
-		fan_data->next_target_pwm = max(min(val, fan_data->fan_cap_pwm), fan_data->fan_min_pwm);
+		fan_data->next_target_pwm = min(val, fan_data->fan_cap_pwm);
 
 		if (fan_data->next_target_pwm != fan_data->fan_cur_pwm)
 			queue_delayed_work(fan_data->workqueue,
@@ -228,48 +229,6 @@ static ssize_t fan_pwm_cap_show(struct device *dev,
 		return -EINVAL;
 	mutex_lock(&fan_data->fan_state_lock);
 	ret = sprintf(buf, "%d\n", fan_data->fan_cap_pwm);
-	mutex_unlock(&fan_data->fan_state_lock);
-
-	return ret;
-}
-
-static ssize_t fan_pwm_min_store(struct device *dev,
-	struct device_attribute *attr, const char *buf, size_t count)
-{
-	struct fan_dev_data *fan_data = dev_get_drvdata(dev);
-	int val, ret, target_pwm;
-
-	ret = sscanf(buf, "%d", &val);
-
-	if ((ret <= 0) || (!fan_data))
-		return -EINVAL;
-	if (val < 0)
-		val = 0;
-
-	mutex_lock(&fan_data->fan_state_lock);
-	if (val < 0)
-		val = 0;
-	else if (val > fan_data->fan_pwm_max)
-		val = fan_data->fan_pwm_max;
-
-	fan_data->fan_min_pwm = val;
-	target_pwm = min(fan_data->fan_cap_pwm, fan_data->requested_target_pwm);
-	fan_update_target_pwm(fan_data, target_pwm);
-	mutex_unlock(&fan_data->fan_state_lock);
-
-	return count;
-}
-
-static ssize_t fan_pwm_min_show(struct device *dev,
-				struct device_attribute *attr, char *buf)
-{
-	struct fan_dev_data *fan_data = dev_get_drvdata(dev);
-	int ret;
-
-	if (!fan_data)
-		return -EINVAL;
-	mutex_lock(&fan_data->fan_state_lock);
-	ret = sprintf(buf, "%d\n", fan_data->fan_min_pwm);
 	mutex_unlock(&fan_data->fan_state_lock);
 
 	return ret;
@@ -890,9 +849,6 @@ static ssize_t fan_kickstart_store(struct device *dev,
 static DEVICE_ATTR(pwm_cap, S_IWUSR | S_IRUGO,
 			fan_pwm_cap_show,
 			fan_pwm_cap_store);
-static DEVICE_ATTR(pwm_min, S_IWUSR | S_IRUGO,
-			fan_pwm_min_show,
-			fan_pwm_min_store);
 static DEVICE_ATTR(state_cap, S_IWUSR | S_IRUGO,
 			fan_state_cap_show,
 			fan_state_cap_store);
@@ -930,10 +886,9 @@ static DEVICE_ATTR(fan_kickstart, S_IWUSR | S_IRUGO,
 			fan_kickstart_show,
 			fan_kickstart_store);
 
-static struct attribute *pwm_fan_attributes[] = {
+static struct attribute *pwm_fan_attrs[] = {
 	&dev_attr_fan_profile.attr,
 	&dev_attr_pwm_cap.attr,
-	&dev_attr_pwm_min.attr,
 	&dev_attr_state_cap.attr,
 	&dev_attr_pwm_state_map.attr,
 	&dev_attr_cur_pwm.attr,
@@ -948,9 +903,7 @@ static struct attribute *pwm_fan_attributes[] = {
 	NULL
 };
 
-static const struct attribute_group pwm_fan_group = {
-	.attrs = pwm_fan_attributes,
-};
+ATTRIBUTE_GROUPS(pwm_fan);
 
 static int add_sysfs_entry(struct device *dev)
 {
@@ -995,7 +948,6 @@ irqreturn_t fan_tach_isr(int irq, void *data)
 
 	return IRQ_HANDLED;
 }
-
 static int pwm_fan_probe(struct platform_device *pdev)
 {
 	int i;
@@ -1017,6 +969,7 @@ static int pwm_fan_probe(struct platform_device *pdev)
 	int tach_gpio;
 	int fan_startup_time = 0;
 	int fan_startup_pwm = 0;
+	struct device *hwmon;
 
 	if (!pdev)
 		return -EINVAL;
@@ -1255,7 +1208,6 @@ static int pwm_fan_probe(struct platform_device *pdev)
 				fan_data->fan_profile_caps[fan_data->current_profile];
 	}
 	fan_data->fan_cap_pwm = fan_data->fan_pwm[fan_data->fan_state_cap];
-	fan_data->fan_min_pwm = 0;
 
 	fan_data->precision_multiplier =
 			(fan_data->pwm_period * MULTIQP) / fan_data->fan_pwm_max;
@@ -1401,9 +1353,17 @@ static int pwm_fan_probe(struct platform_device *pdev)
 			fan_data->fan_rrd[i],
 			fan_data->fan_state_cap_lookup[i]);
 	}
-
+	hwmon = devm_hwmon_device_register_with_groups(&pdev->dev, "tegra_pwmfan", fan_data, pwm_fan_groups);
+        if (IS_ERR(hwmon)) {
+                dev_err(&pdev->dev, "Failed to register hwmon device\n");
+                pwm_disable(fan_data->pwm_dev);
+                err = PTR_ERR(hwmon);
+		goto hwmon_fail;
+        }
 	return err;
 
+hwmon_fail:
+	remove_sysfs_entry(&pdev->dev);
 sysfs_fail:
 	destroy_workqueue(fan_data->tach_workqueue);
 tach_workqueue_alloc_fail:
@@ -1443,7 +1403,8 @@ static int pwm_fan_remove(struct platform_device *pdev)
 	cancel_delayed_work(&fan_data->fan_tach_work);
 	destroy_workqueue(fan_data->tach_workqueue);
 	disable_irq(fan_data->tach_irq);
-	gpio_free(fan_data->tach_gpio);
+	if (fan_data->tach_gpio != -1)
+		gpio_free(fan_data->tach_gpio);
 	if (fan_data->kickstart_en) {
 		cancel_delayed_work_sync(&fan_data->fan_hyst_work);
 		fan_data->fan_kickstart = false;
