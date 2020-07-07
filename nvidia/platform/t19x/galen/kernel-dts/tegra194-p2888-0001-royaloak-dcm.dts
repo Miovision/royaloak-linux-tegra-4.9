@@ -26,13 +26,66 @@
         board-has-eeprom;
     };
 
+    host1x {
+        // Disable the display controllers
+        nvdisplay@15200000{
+            status = "disabled";
+        };
+        dc@15210000{
+            status = "disabled";
+        };
+        dc@15220000 {
+            status = "disabled";
+        };
+        dpaux@155F0000 {
+            status = "disabled";
+        };
+	};
+
+    ether_qos@2490000 {
+        status = "disabled";
+    };
+
+    reserved-memory {
+        fb0_reserved: fb0_carveout {
+            status = "disabled";
+        };
+    };
+
+
+    tegra_xudc: xudc@3550000 {
+        status = "disabled";
+    };
+
+
+   	tegra_xhci: xhci@3610000 {
+        status = "disabled";
+    };
+
+
+    ufshci@2450000 {
+		status = "disabled";
+        /delete-property/ nvidia,cd-wakeup-capable;
+        /delete-property/ nvidia,enable-hs-mode;
+	};
+
+   i2c@0c240000 {
+        status = "disabled";
+        ucsi_ccg@8 {
+           status = "disabled";
+        };
+    };
+
+    i2c@31c0000 {
+        status = "disabled";
+    };
 
     //*********************************************************************
     // Serial UART Setup
     //*********************************************************************
     // Xavier Module UART 3 -->  UART 1 (Debug Port)
     serial@0c280000 {
-        compatible = "nvidia,tegra184-uart", "nvidia,tegra114-hsuart", "nvidia,tegra20-uart";
+        compatible = "nvidia,tegra210-uart", "nvidia,tegra114-hsuart", "nvidia,tegra20-uart";
         console-port;
         sqa-automation-port;
         /delete-property/ resets;
@@ -96,7 +149,6 @@
     // Notes:
     //		Xavier supports up to 65Mhz SPI clocks.
     //*********************************************************************
-
     // Xavier Module SPI 1--> Tegra SPI 1 (TPM)
     spi@3210000 {
         status = "okay";
@@ -127,7 +179,6 @@
         // Configure the SPI link between the boards using a generic SPIDEV so tools
         // can be used.
 
-
         spi@0 {
             compatible = "spidev";
             reg = <0x0>;
@@ -139,12 +190,11 @@
             nvidia,rx-clk-tap-delay = <6>;
         };
     };
-
     //*********************************************************************
     // GPIO Input Buttons, configured to trigger keyboard events.
     //*********************************************************************
 
-    gpio-keys {
+   gpio-keys {
         compatible = "gpio-keys";
         gpio-keys,name = "gpio-keys";
 
@@ -322,5 +372,4 @@
             linux,default-trigger = "test_led_o";
         };
      };
-
 };
