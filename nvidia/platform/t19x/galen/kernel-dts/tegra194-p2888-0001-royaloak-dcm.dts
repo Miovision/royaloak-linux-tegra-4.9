@@ -31,10 +31,13 @@
         nvdisplay@15200000{
             status = "disabled";
         };
-        dc@15210000{
+        nvdisplay@15210000{
             status = "disabled";
         };
-        dc@15220000 {
+        nvdisplay@15220000 {
+            status = "disabled";
+        };
+        vi@15c10000 {
             status = "disabled";
         };
         dpaux@155F0000 {
@@ -52,28 +55,33 @@
         };
     };
 
+    tegra_cec@3960000 {
+        status = "disabled";
+    };
 
     tegra_xudc: xudc@3550000 {
         status = "disabled";
     };
 
-
-   	tegra_xhci: xhci@3610000 {
+    tegra_xhci: xhci@3610000 {
         status = "disabled";
     };
 
-
     ufshci@2450000 {
-		status = "disabled";
+        status = "disabled";
         /delete-property/ nvidia,cd-wakeup-capable;
         /delete-property/ nvidia,enable-hs-mode;
-	};
+    };
 
-   i2c@0c240000 {
+    i2c@0c240000 {
         status = "disabled";
         ucsi_ccg@8 {
-           status = "disabled";
+            status = "disabled";
         };
+    };
+
+    i2c@31e0000 {
+        status = "disabled";
     };
 
     i2c@31c0000 {
