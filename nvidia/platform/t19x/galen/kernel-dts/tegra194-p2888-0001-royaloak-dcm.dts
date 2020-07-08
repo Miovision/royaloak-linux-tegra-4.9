@@ -43,12 +43,14 @@
         dpaux@155F0000 {
             status = "disabled";
         };
-	};
+    };
 
+    // Disable the ethernet controller
     ether_qos@2490000 {
         status = "disabled";
     };
 
+    // Disable the framebuffer memory reserve
     reserved-memory {
         fb0_reserved: fb0_carveout {
             status = "disabled";
