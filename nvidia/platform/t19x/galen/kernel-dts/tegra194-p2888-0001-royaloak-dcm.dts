@@ -244,10 +244,33 @@
         };
     };
 
+    // We're using the GPIO lines for these regulators, so to remove the conflict
+    // without removing the regulators entirely we set their GPIOs to ones that
+    // are not used in our DCM board.
+    fixed-regulators {
+        p2822_avdd_cam_2v8: regulator@107 {
+            gpio = <&tegra_main_gpio TEGRA194_MAIN_GPIO(T, 5) GPIO_ACTIVE_HIGH>;
+        };
+        p2822_vdd_5v_sata: regulator@114 {
+            gpio = <&tegra_main_gpio TEGRA194_MAIN_GPIO(T, 6) GPIO_ACTIVE_HIGH>;
+        };
+    };
+
     //*********************************************************************
     // GPIO Setup
     //*********************************************************************
-    gpio: gpio@02200000 {
+    gpio@2200000 {
+        /////////////////////////////////////
+        // Disable unneeded GPIOs
+        /////////////////////////////////////
+        pcie-reg-enable {
+            status = "disabled";
+        };
+
+        wifi-enable {
+            status = "disabled";
+        };
+
         /////////////////////////////////////
         // Input Power good
         /////////////////////////////////////
@@ -255,7 +278,8 @@
         ctm_pwr_good {
             status = "okay";
             input;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(N, 0) GPIO_ACTIVE_HIGH>;
+            gpio-hog;
+            gpios = <TEGRA194_MAIN_GPIO(N, 0) GPIO_ACTIVE_HIGH>;
             line-name = "CTM_PWR_GOOD";
         };
 
@@ -266,7 +290,8 @@
         overtemp_shdn {
             status = "okay";
             input;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Z, 2) GPIO_ACTIVE_HIGH>;
+            gpio-hog;
+            gpios = <TEGRA194_MAIN_GPIO(Z, 2) GPIO_ACTIVE_HIGH>;
             line-name = "OVERTEMP_SHDN";
         };
 
@@ -279,23 +304,16 @@
             status = "okay";
             gpio-hog;
             output-low;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Z, 1) GPIO_ACTIVE_HIGH>;
-            line-name = "USB0_ENABLE";
-        };
-
-        //USB_VBUS_DET => GPIO10 => CAN1_WAKE => GPIO3 P(BB,2) *
-        usb0_vbus_detect {
-            status = "okay";
-            input;
-            gpios = <&tegra_main_gpio TEGRA194_AON_GPIO(BB, 2) GPIO_ACTIVE_HIGH>;
-            line-name = "USB0_VBUS_DETECT";
+            gpios = <TEGRA194_MAIN_GPIO(Z, 1) GPIO_ACTIVE_LOW>;
+            line-name = "USB0_ENABLEn";
         };
 
         //USB_ID => GPIO30 => GPIO20 => GPIO3 P(Q,0) *
         usb0_id {
             status = "okay";
             input;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Q, 0) GPIO_ACTIVE_HIGH>;
+            gpio-hog;
+            gpios = <TEGRA194_MAIN_GPIO(Q, 0) GPIO_ACTIVE_HIGH>;
             line-name = "USB0_ID";
         };
 
@@ -306,8 +324,9 @@
         pm_led_bl_st {
             status = "okay";
             input;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(P, 4) GPIO_ACTIVE_HIGH>;
-            line-name = "PM_LED_LB_ST";
+            gpio-hog;
+            gpios = <TEGRA194_MAIN_GPIO(P, 4) GPIO_ACTIVE_HIGH>;
+            line-name = "PM_LED_BL_ST";
         };
 
         // TPM_RSTn => GPIO24 => DP_AUX_CH3_HPD => GPIO3 P(M,3) *
@@ -315,7 +334,7 @@
             status = "okay";
             gpio-hog;
             output-low;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 3) GPIO_ACTIVE_HIGH>;
+            gpios = <TEGRA194_MAIN_GPIO(M, 3) GPIO_ACTIVE_HIGH>;
             line-name = "TPM_RST";
         };
 
@@ -323,8 +342,8 @@
         tpm_irq {
             status = "okay";
             gpio-hog;
-            output-low;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(P, 6) GPIO_ACTIVE_HIGH>;
+            input;
+            gpios = <TEGRA194_MAIN_GPIO(P, 6) GPIO_ACTIVE_HIGH>;
             line-name = "TPM_IRQ";
         };
 
@@ -337,7 +356,7 @@
             status = "okay";
             gpio-hog;
             output-high;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 6) GPIO_ACTIVE_HIGH>;
+            gpios = <TEGRA194_MAIN_GPIO(M, 6) GPIO_ACTIVE_HIGH>;
             line-name = "LCD_RESET";
         };
          //LCD_D_C => GPIO31 => SAFE_STATE  => GPIO3 P(EE,0)
@@ -345,8 +364,19 @@
             status = "okay";
             gpio-hog;
             output-high;
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(E, 0) GPIO_ACTIVE_HIGH>;
+            gpios = <TEGRA194_MAIN_GPIO(E, 0) GPIO_ACTIVE_HIGH>;
             line-name = "LCD_D_C";
+        };
+    };
+
+    gpio@c2f0000 {
+        //USB_VBUS_DET => GPIO10 => CAN1_WAKE => GPIO3 P(BB,2) *
+        usb0_vbus_detect {
+            status = "okay";
+            input;
+            gpio-hog;
+            gpios = <TEGRA194_AON_GPIO(BB, 2) GPIO_ACTIVE_LOW>;
+            line-name = "USB0_VBUS_DETECTn";
         };
     };
 
