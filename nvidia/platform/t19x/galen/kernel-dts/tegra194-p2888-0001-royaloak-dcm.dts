@@ -43,9 +43,21 @@
         };
     };
 
-    // Disable the ethernet controller
+    // Setup the phy to use micrel settings
     ether_qos@2490000 {
-        status = "disabled";
+        mdio {
+            status = "okay";
+            phy0: ethernet-phy@0 {
+                status = "okay";
+                device_type = "ethernet-phy";
+                micrel,copper-mode;
+                micrel,reg-init = <2 8 0xfc1f 0x03e0>;
+                rxc-skew-ps = <3000>;
+                rxdv-skew-ps = <0>;
+                txc-skew-ps = <3000>;
+                txen-skew-ps = <0>;
+            };
+        };
     };
 
     // Disable the framebuffer memory reserve
