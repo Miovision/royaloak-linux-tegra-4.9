@@ -167,7 +167,7 @@
 
         // The PINMUX needed to be adjusted to put the CS line as a GPIO pin which is software controlled,
         // the hardware control was dropping the CS line between transactions resetting the TPM.
-        cs-gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Z,6) GPIO_ACTIVE_LOW>;
+        cs-gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Z,6) GPIO_ACTIVE_HIGH>;
 
         spi@0 {
             reg = <0x0>;
@@ -303,7 +303,7 @@
             status = "okay";
             gpio-hog;
             output-low;
-            gpios = <TEGRA194_MAIN_GPIO(Z, 1) GPIO_ACTIVE_LOW>;
+            gpios = <TEGRA194_MAIN_GPIO(Z, 1) GPIO_ACTIVE_HIGH>;
             line-name = "USB0_ENABLEn";
         };
 
@@ -333,7 +333,7 @@
             status = "okay";
             gpio-hog;
             output-low;
-            gpios = <TEGRA194_MAIN_GPIO(M, 3) GPIO_ACTIVE_LOW>;
+            gpios = <TEGRA194_MAIN_GPIO(M, 3) GPIO_ACTIVE_HIGH>;
             line-name = "TPM_RSTn";
         };
 
@@ -374,7 +374,7 @@
             status = "okay";
             input;
             gpio-hog;
-            gpios = <TEGRA194_AON_GPIO(BB, 2) GPIO_ACTIVE_LOW>;
+            gpios = <TEGRA194_AON_GPIO(BB, 2) GPIO_ACTIVE_HIGH>;
             line-name = "USB0_VBUS_DETECTn";
         };
     };
