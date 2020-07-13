@@ -344,7 +344,7 @@
         tpm_rst {
             status = "okay";
             gpio-hog;
-            output-low;
+            output-high;
             gpios = <TEGRA194_MAIN_GPIO(M, 3) GPIO_ACTIVE_HIGH>;
             line-name = "TPM_RSTn";
         };
