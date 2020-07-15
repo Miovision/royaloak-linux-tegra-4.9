@@ -370,14 +370,6 @@
             gpios = <TEGRA194_MAIN_GPIO(M, 6) GPIO_ACTIVE_HIGH>;
             line-name = "LCD_RESET";
         };
-         //LCD_D_C => GPIO31 => SAFE_STATE  => GPIO3 P(EE,0)
-        lcd_d_c {
-            status = "okay";
-            gpio-hog;
-            output-high;
-            gpios = <TEGRA194_MAIN_GPIO(E, 0) GPIO_ACTIVE_HIGH>;
-            line-name = "LCD_D_C";
-        };
     };
 
     gpio@c2f0000 {
