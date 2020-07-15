@@ -127,7 +127,7 @@
     //		LM75 Temperature      0x48 (Ethernet Switch)
     //		LM75 Temperature      0x49 (+53 Power Module)
     //		MAX6650 AUX Fan       0x1F (Aux Fan)
-    i2c@03160000 {
+    i2c@3160000 {
          status = "okay";
 
         lm75@48 {
