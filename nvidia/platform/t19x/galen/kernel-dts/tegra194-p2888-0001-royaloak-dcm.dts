@@ -85,13 +85,6 @@
         /delete-property/ nvidia,enable-hs-mode;
     };
 
-    i2c@0c240000 {
-        status = "disabled";
-        ucsi_ccg@8 {
-            status = "disabled";
-        };
-    };
-
     i2c@31e0000 {
         status = "disabled";
     };
@@ -152,15 +145,43 @@
     };
 
     // Xavier Module I2C-2 --> Pushbutton LED
-    i2c@0c240000 {
+    i2c@c240000 {
         status = "okay";
+
+        ucsi_ccg@8 {
+            status = "disabled";
+        };
+
+        /delete-node/ ucsi_ccg;
 
         led@64 {
             status= "okay";
-            compatible = "leds-is31fl319x";
+            compatible = "issi,is31fl3196";
             led-max-microamp = <10000>;
             reg = <0x64>;
+
+            led1: led@1 { //BR
+                led-max-microamp = <10000>;
+                label = "LED_BTN:BTN_RIGHT";
+                reg = <1>;
+            };
+            led2: led@2 { // BL
+                led-max-microamp = <10000>;
+                label = "LED_BTN:BOTTOM_LEFT";
+                reg = <2>;
+            };
+            led3: led@3 { //TR
+                led-max-microamp = <10000>;
+                label = "LED_BTN:TOP_RIGHT";
+                reg = <3>;
+            };
+            led4: led@4 { //TL
+                led-max-microamp = <10000>;
+                label = "LED_BTN:TOP_LEFT";
+                reg = <4>;
+            };
         };
+
     };
 
     //*********************************************************************
@@ -192,24 +213,36 @@
         };
     };
 
+    // Delete this because it was using one of the GPIOs for the LCD
+    /delete-node/ bluedroid_pm;
+
+    backlight: backlight {
+        compatible = "gpio-backlight";
+        gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(N, 1) GPIO_ACTIVE_HIGH>;
+        default-on;
+    };
+
     // Xavier Module SPI 2 --> Tegra SPI 2 (LCD, )
-    spi@0c260000 {
+    spi@c260000 { // 3230000
         status = "okay";
 
-        // Configure the SPI link between the boards using a generic SPIDEV so tools
-        // can be used.
-
-        spi@0 {
-            compatible = "spidev";
+        display@0 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            compatible = "ilitek,ili9341";
             reg = <0x0>;
 
-            // Set the max speed to 10Mhz as its cross board and we don't know whats going
-            // to be connected yet.
-            spi-max-frequency = <10000000>;
-            nvidia,enable-hw-based-cs;
-            nvidia,rx-clk-tap-delay = <6>;
+            spi-max-frequency = <32000000>;
+	        reset-gpios =  <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 6) 0>;
+            dc-gpios =  <&tegra_aon_gpio TEGRA194_AON_GPIO(EE, 0) GPIO_ACTIVE_HIGH>;
+            backlight = <&backlight>;
+            rotate = <270>;
+            regwidth = <8>;
+            buswidth = <8>;
+            verbose = <3>;
         };
     };
+
     //*********************************************************************
     // GPIO Input Buttons, configured to trigger keyboard events.
     //*********************************************************************
@@ -328,18 +361,6 @@
             line-name = "USB0_ID";
         };
 
-        /////////////////////////////////////
-        // PM_LED_BL_ST
-        /////////////////////////////////////
-        // PM_LED_BL_ST => GPIO32 => SOC_GPIO04 => GPIO3 P(P,4) *
-        pm_led_bl_st {
-            status = "okay";
-            input;
-            gpio-hog;
-            gpios = <TEGRA194_MAIN_GPIO(P, 4) GPIO_ACTIVE_HIGH>;
-            line-name = "PM_LED_BL_ST";
-        };
-
         // TPM_RSTn => GPIO24 => DP_AUX_CH3_HPD => GPIO3 P(M,3) *
         tpm_rst {
             status = "okay";
@@ -358,18 +379,6 @@
             line-name = "TPM_IRQ";
         };
 
-
-        /////////////////////////////////////
-        // LCD
-        /////////////////////////////////////
-        // LCD_RESET => GPIO26 => SOC_GPIO51  => GPIO3 P(M,6) *
-        lcd_reset {
-            status = "okay";
-            gpio-hog;
-            output-high;
-            gpios = <TEGRA194_MAIN_GPIO(M, 6) GPIO_ACTIVE_HIGH>;
-            line-name = "LCD_RESET";
-        };
     };
 
     gpio@c2f0000 {
@@ -402,7 +411,7 @@
         //TEST_LED1_B => GPIO 04  3.3v
         //GPIO_04 => DAP6_DIN GPIO3 => P(A,02) *
         test_led_b {
-            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(N, 2) GPIO_ACTIVE_HIGH>;
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(A, 2) GPIO_ACTIVE_HIGH>;
             default-state = "off";
             linux,default-trigger = "test_led_b";
         };
