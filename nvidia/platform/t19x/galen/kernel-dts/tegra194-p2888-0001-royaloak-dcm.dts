@@ -79,15 +79,11 @@
         status = "disabled";
     };
 
-
-    ///delete-node/ ufshci@2450000;
-
     ufshci@2450000 {
         status = "disabled";
         /delete-property/ nvidia,cd-wakeup-capable;
         /delete-property/ nvidia,enable-hs-mode;
     };
-
 
     i2c@0c240000 {
         status = "disabled";
@@ -160,11 +156,11 @@
     i2c@c240000 {
         status = "okay";
 
-       /* ucsi_ccg@8 {
+        ucsi_ccg@8 {
             status = "disabled";
         };
-        */
-        ///delete-node/ ucsi_ccg;
+
+        /delete-node/ ucsi_ccg;
 
         led@64 {
             status= "okay";
@@ -225,18 +221,8 @@
         };
     };
 
+    // Delete this because it was using one of the GPIOs for the LCD
     /delete-node/ bluedroid_pm;
-
-
-    /*backlight: backlight {
-            compatible = "pwm-backlight";
-
-            brightness-levels = <0 2048 4096 8192 16384 65535>;
-            num-interpolated-steps = <2048>;
-            default-brightness-level = <4096>;
-            enable-gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(N, 1) GPIO_ACTIVE_HIGH>;
-    };
-    */
 
     backlight: backlight {
         compatible = "gpio-backlight";
@@ -248,31 +234,20 @@
     spi@c260000 { // 3230000
         status = "okay";
 
-
-        // Configure the SPI link between the boards using a generic SPIDEV so tools
-        // can be used.
-
         display@0 {
             #address-cells = <1>;
             #size-cells = <0>;
             compatible = "ilitek,ili9341";
             reg = <0x0>;
 
-            // Set the max speed to 10Mhz as its cross board and we don't know whats going
-            // to be connected yet.
             spi-max-frequency = <32000000>;
-		    //reset-gpios = <lcd_reset>;
-            reset-gpios =  <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 6) 0>;
+	        reset-gpios =  <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 6) 0>;
             dc-gpios =  <&tegra_aon_gpio TEGRA194_AON_GPIO(EE, 0) GPIO_ACTIVE_HIGH>;
-            //reset-gpios =  <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 6) 0>;
-
-            //led-gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(N, 1) GPIO_ACTIVE_HIGH>;
             backlight = <&backlight>;
             rotate = <270>;
             regwidth = <8>;
             buswidth = <8>;
             verbose = <3>;
-
         };
     };
 
@@ -338,9 +313,6 @@
         /delete-node/ regulator@114;
     };
 
-
-   //     /delete-node/     p2822_vdd_1v8_sd;
-
     //*********************************************************************
     // GPIO Setup
     //*********************************************************************
@@ -396,7 +368,6 @@
             gpios = <TEGRA194_MAIN_GPIO(Q, 0) GPIO_ACTIVE_HIGH>;
             line-name = "USB0_ID";
         };
-
 
         // TPM_RSTn => GPIO24 => DP_AUX_CH3_HPD => GPIO3 P(M,3) *
         tpm_rst {
