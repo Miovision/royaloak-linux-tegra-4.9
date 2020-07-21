@@ -85,14 +85,6 @@
         /delete-property/ nvidia,enable-hs-mode;
     };
 
-    i2c@0c240000 {
-        status = "disabled";
-         /delete-node/ ucsi_ccg@8;
-        ucsi_ccg@8 {
-            status = "disabled";
-        };
-    };
-
     i2c@31e0000 {
         status = "disabled";
     };
