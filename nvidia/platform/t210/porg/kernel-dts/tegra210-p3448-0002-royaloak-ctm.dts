@@ -321,7 +321,7 @@
             status = "okay";
             gpio-hog;
             input;
-            gpios = <TEGRA_GPIO(T, 0) GPIO_ACTIVE_LOW>;
+            gpios = <TEGRA_GPIO(T, 0) GPIO_ACTIVE_HIGH>;
             line-name = "SIMCARD1-PRESENTn";
         };
 
@@ -329,7 +329,7 @@
             status = "okay";
             gpio-hog;
             input;
-            gpios = <TEGRA_GPIO(S, 1) GPIO_ACTIVE_LOW>;
+            gpios = <TEGRA_GPIO(S, 1) GPIO_ACTIVE_HIGH>;
             line-name = "SIMCARD2-PRESENTn";
         };
 
