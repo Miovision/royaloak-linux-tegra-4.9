@@ -162,22 +162,22 @@
 
             led1: led@1 { //BR
                 led-max-microamp = <10000>;
-                label = "LED_BTN:BTN_RIGHT";
+                label = "BTN_BOTTOM_RIGHT";
                 reg = <1>;
             };
             led2: led@2 { // BL
                 led-max-microamp = <10000>;
-                label = "LED_BTN:BOTTOM_LEFT";
+                label = "BTN_BOTTOM_LEFT";
                 reg = <2>;
             };
             led3: led@3 { //TR
                 led-max-microamp = <10000>;
-                label = "LED_BTN:TOP_RIGHT";
+                label = "BTN_TOP_RIGHT";
                 reg = <3>;
             };
             led4: led@4 { //TL
                 led-max-microamp = <10000>;
-                label = "LED_BTN:TOP_LEFT";
+                label = "BTN_TOP_LEFT";
                 reg = <4>;
             };
         };
@@ -253,35 +253,35 @@
 
         // BUT_CENTERn => GPIO18 => SOC_GPIO40 GPIO03 => P(Q,4) *
         button_center {
-            label = "BUTTON-CENTERn";
+            label = "BTN-CENTERn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Q, 4) GPIO_ACTIVE_HIGH>;
             linux,code = <KEY_ENTER>;
         };
 
         // BUT_UPn => GPIO33 => SOC_GPIO05  GPIO3 => P(P,5) *
         button_up {
-            label = "BUTTON-UPn";
+            label = "BTN-UPn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(P, 5) GPIO_ACTIVE_HIGH>;
             linux,code = <KEY_UP>;
         };
 
         // BUT_DOWNn => GPIO17 => SOC_GPIO21 GPIO3 => P(Q,1) *
         button_down {
-            label = "BUTTON-DOWNn";
+            label = "BTN-DOWNn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Q, 1) GPIO_ACTIVE_HIGH>;
             linux,code = <KEY_DOWN>;
         };
 
         // BUT_LEFTn => GPIO29 => SOC_GPIO31   GPIO3 => P(S,6) *
         button_left {
-            label = "BUTTON-LEFTn";
+            label = "BTN-LEFTn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(S, 6) GPIO_ACTIVE_HIGH>;
             linux,code = <KEY_LEFT>;
         };
 
         // BUT_RIGHTn => GPIO11 => SOC_GPIO30   GPIO3 => P(S,5) *
         button_right {
-            label = "BUTTON-RIGHTn";
+            label = "BTN-RIGHTn";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(S, 5) GPIO_ACTIVE_HIGH>;
             linux,code = <KEY_RIGHT>;
         };
@@ -403,25 +403,28 @@
         //TEST_LED1_G => GPIO_21  3.3v
         //GPIO_21 => DAP6_SCLK GPIO3 => P(A,0) *
         test_led_g {
+            label = "TEST_LED1_G";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(A, 0) GPIO_ACTIVE_HIGH>;
             default-state = "off";
-            linux,default-trigger = "test_led_g";
+            linux,default-trigger = "none";
         };
 
         //TEST_LED1_B => GPIO 04  3.3v
         //GPIO_04 => DAP6_DIN GPIO3 => P(A,02) *
         test_led_b {
+            label = "TEST_LED1_B";
             gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(A, 2) GPIO_ACTIVE_HIGH>;
             default-state = "off";
-            linux,default-trigger = "test_led_b";
+            linux,default-trigger = "none";
         };
 
         //TEST_LED1_O => GPIO 09  3.3v
         //GPIO_09 => CAN1_EN GPIO3 => P(BB,1) *
         test_led_o {
+            label = "TEST_LED1_O";
             gpios = <&tegra_main_gpio TEGRA194_AON_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
             default-state = "off";
-            linux,default-trigger = "test_led_o";
+            linux,default-trigger = "none";
         };
      };
 };
