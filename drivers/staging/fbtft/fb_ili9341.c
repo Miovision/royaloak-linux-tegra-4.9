@@ -64,7 +64,7 @@ static int init_display(struct fbtft_par *par)
 	/* write_reg(par, 0xF2, 0x08); */ /* Gamma Function Disable */
 	write_reg(par, MIPI_DCS_SET_GAMMA_CURVE, 0x01);
 	/* ------------display-------------------------------------- */
-		// Invert the colors on the display
+	// Invert the colors on the display
 	write_reg(par, MIPI_DCS_ENTER_INVERT_MODE);
 	mdelay(20);
 
