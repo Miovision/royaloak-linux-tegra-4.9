@@ -74,7 +74,6 @@
         fb3_reserved: fb3_carveout {
             status = "disabled";
         };
-
     };
 
     tegra_cec@3960000 {
@@ -104,8 +103,8 @@
     };
 
     sdhci@3400000 {
-	    status = "disabled";
-	};
+        status = "disabled";
+    };
 
     //*********************************************************************
     // Serial UART Setup
