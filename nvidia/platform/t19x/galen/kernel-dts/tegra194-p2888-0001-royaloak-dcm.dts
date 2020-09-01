@@ -110,7 +110,7 @@
     // Serial UART Setup
     //*********************************************************************
     // Xavier Module UART 3 -->  UART 1 (Debug Port)
-    serial@0c280000 {
+    serial@c280000 {
         compatible = "nvidia,tegra210-uart", "nvidia,tegra114-hsuart", "nvidia,tegra20-uart";
         console-port;
         sqa-automation-port;
