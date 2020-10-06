@@ -333,6 +333,16 @@
             line-name = "SIMCARD2-PRESENTn";
         };
 
+        // Indicates that system power has been lost.
+        // PFI stands for power fault indicator.
+        backup-pfi {
+            status = "okay";
+            input;
+            gpio-hog;
+            gpios = <TEGRA_GPIO(CC, 0) GPIO_ACTIVE_HIGH>;
+            line-name = "BACKUP_PFI";
+        };
+
         usb2-overcurrent {
             status = "okay";
             input;
@@ -409,14 +419,6 @@
             output-high;
             gpios = <TEGRA_GPIO(CC, 6) GPIO_ACTIVE_HIGH>;
             line-name = "USB2-VBUS-EN";
-        };
-
-        testpoint-50 {
-            status = "okay";
-            gpio-hog;
-            output-low;
-            gpios = <TEGRA_GPIO(CC, 0) GPIO_ACTIVE_HIGH>;
-            line-name = "TESTPOINT-50";
         };
 
         testpoint-51 {
