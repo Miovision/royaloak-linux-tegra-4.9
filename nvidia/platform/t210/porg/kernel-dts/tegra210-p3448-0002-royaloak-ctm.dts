@@ -131,8 +131,10 @@
         no-mmc;                          // Disable MMC memory detection on this port
         no-sd;                           // Disable SD card detection on this port.
 
-        // Mask off HS200, HS400, and DDR50 modes which are not supported on our device.
-        uhs-mask = <0x68>;
+        // Mask off UHS modes not supported
+        // 0x80 = SD_HS, 0x40 = HS400, 0x20 = HS200, 0x10 = SDR104
+        // 0x8 = DDR50, 0x4 = SDR50, 0x2 = SDR25, 0x1 = SDR12
+        uhs-mask = <0xFD>; // Masking off all modes except for SDR25
 
         // SDIO modes supported by the laird device.
         sd-uhs-sdr104;
