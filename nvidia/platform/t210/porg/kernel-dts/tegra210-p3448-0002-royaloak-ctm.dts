@@ -22,6 +22,7 @@
 
 #include "porg-platforms/tegra210-royal_oak_ctm-pinmux.dtsi"
 #include "porg-platforms/tegra210-royal_oak_ctm-gpio-default.dtsi"
+#include <dt-bindings/pwm/pwm.h>
 
 / {
     model = "Royal Oak CTM";
@@ -306,6 +307,15 @@
             interrupts = <TEGRA_GPIO(J, 5) 0x01>;
             interrupt-names = "INT1";
         };
+    };
+
+    //*********************************************************************
+    // Fan Adjustments
+    //*********************************************************************
+
+    pwm_fan_shared_data: pfsd {
+        // Our PWM fan is inverted, so this compensates for that.
+        pwm_polarity = <PWM_POLARITY_INVERTED>;
     };
 
     //*********************************************************************
