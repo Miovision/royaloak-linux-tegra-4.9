@@ -130,17 +130,10 @@
     };
 
     // Xavier Module I2C-1 --> Tegra I2C2
-    //		LM75 Temperature      0x48 (Ethernet Switch)
-    //		LM75 Temperature      0x49 (+53 Power Module)
-    //		MAX6650 AUX Fan       0x1F (Aux Fan)
+    //		LM75 Temperature      0x49 (Under Xavier)
+    //		LM75 Temperature      0x4B (Ambient)
     i2c@3160000 {
          status = "okay";
-
-        lm75@48 {
-            status= "okay";
-            compatible = "national,lm75";
-            reg = <0x48>;
-        };
 
          lm75@49 {
             status= "okay";
@@ -148,12 +141,10 @@
             reg = <0x49>;
         };
 
-        max6650@1f {
-            reg = <0x1f>;
-            compatible = "maxim,max6650";
-            maxim,fan-microvolt = <12000000>;
-            maxim,fan-prescale = <4>;
-            maxim,fan-target-rpm = <0>;
+        lm75@4B {
+            status= "okay";
+            compatible = "national,lm75";
+            reg = <0x4B>;
         };
     };
 
