@@ -309,6 +309,13 @@
         };
     };
 
+    // Disable the battery backup charging as we are using a coin cell.
+    i2c@7000d000 {
+        max77620: max77620@3c {
+            /delete-node/ backup-battery;
+        };
+    };
+
     //*********************************************************************
     // Fan Adjustments
     //*********************************************************************
