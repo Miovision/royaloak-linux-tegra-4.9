@@ -255,7 +255,6 @@
     //		LM75 Temperature      0x49 (+53 Power Module)
     //		LM75 Temperature      0x4A (+12 Power Module)
     //		LM75 Temperature      0x4B (Ambient)
-    //		MAX6650 AUX Fan       0x1F (Aux Fan)
     // 		PCA9546 MUX           0x70 (Nano Internal Mux)
     i2c@7000c400 {
          status = "okay";
@@ -282,14 +281,6 @@
             status= "okay";
             compatible = "national,lm75";
             reg = <0x4b>;
-        };
-
-        max6650@1f {
-            reg = <0x1f>;
-            compatible = "maxim,max6650";
-            maxim,fan-microvolt = <12000000>;
-            maxim,fan-prescale = <4>;
-            maxim,fan-target-rpm = <0>;
         };
 
     };
