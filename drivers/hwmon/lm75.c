@@ -59,10 +59,13 @@ enum lm75_type {		/* keep sorted in alphabetical order */
 	tmp75c,
 };
 
-/* Addresses scanned */
+#ifdef CONFIG_MIOVISION_DCM_LM75_DETECT_DISABLE
+// Scan address have been removed since they are causing errors on the DCM
+static const unsigned short normal_i2c[] = { I2C_CLIENT_END };
+#else
 static const unsigned short normal_i2c[] = { 0x48, 0x49, 0x4a, 0x4b, 0x4c,
 					0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
-
+#endif
 
 /* The LM75 registers */
 #define LM75_REG_TEMP		0x00
