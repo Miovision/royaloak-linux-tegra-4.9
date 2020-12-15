@@ -124,7 +124,8 @@ static void fan_validate_target_rpm(struct fan_dev_data *fan_data)
 static void fan_update_target_pwm(struct fan_dev_data *fan_data, int val)
 {
 	if (fan_data) {
-		fan_data->next_target_pwm = min(val, fan_data->fan_cap_pwm);
+		fan_data->requested_target_pwm = val;
+		fan_data->next_target_pwm = max(min(val, fan_data->fan_cap_pwm), fan_data->fan_min_pwm);
 
 		/* If a new pwm update request, reset the lock sequence */
 		if (mutex_is_locked(&fan_data->pwm_set))
@@ -302,6 +303,48 @@ static ssize_t fan_pwm_cap_show(struct device *dev,
 		return -EINVAL;
 	mutex_lock(&fan_data->fan_state_lock);
 	ret = sprintf(buf, "%d\n", fan_data->fan_cap_pwm);
+	mutex_unlock(&fan_data->fan_state_lock);
+
+	return ret;
+}
+
+static ssize_t fan_pwm_min_store(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct fan_dev_data *fan_data = dev_get_drvdata(dev);
+	int val, ret, target_pwm;
+
+	ret = sscanf(buf, "%d", &val);
+
+	if ((ret <= 0) || (!fan_data))
+		return -EINVAL;
+	if (val < 0)
+		val = 0;
+
+	mutex_lock(&fan_data->fan_state_lock);
+	if (val < 0)
+		val = 0;
+	else if (val > fan_data->fan_pwm_max)
+		val = fan_data->fan_pwm_max;
+
+	fan_data->fan_min_pwm = val;
+	target_pwm = min(fan_data->fan_cap_pwm, fan_data->requested_target_pwm);
+	fan_update_target_pwm(fan_data, target_pwm);
+	mutex_unlock(&fan_data->fan_state_lock);
+
+	return count;
+}
+
+static ssize_t fan_pwm_min_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct fan_dev_data *fan_data = dev_get_drvdata(dev);
+	int ret;
+
+	if (!fan_data)
+		return -EINVAL;
+	mutex_lock(&fan_data->fan_state_lock);
+	ret = sprintf(buf, "%d\n", fan_data->fan_min_pwm);
 	mutex_unlock(&fan_data->fan_state_lock);
 
 	return ret;
@@ -1148,6 +1191,9 @@ static ssize_t fan_kickstart_store(struct device *dev,
 static DEVICE_ATTR(pwm_cap, S_IWUSR | S_IRUGO,
 			fan_pwm_cap_show,
 			fan_pwm_cap_store);
+static DEVICE_ATTR(pwm_min, S_IWUSR | S_IRUGO,
+			fan_pwm_min_show,
+			fan_pwm_min_store);
 static DEVICE_ATTR(state_cap, S_IWUSR | S_IRUGO,
 			fan_state_cap_show,
 			fan_state_cap_store);
@@ -1191,6 +1237,7 @@ static DEVICE_ATTR(fan_rpm_in_limit, S_IRUGO,
 static struct attribute *pwm_fan_attrs[] = {
 	&dev_attr_fan_profile.attr,
 	&dev_attr_pwm_cap.attr,
+	&dev_attr_pwm_min.attr,
 	&dev_attr_state_cap.attr,
 	&dev_attr_pwm_state_map.attr,
 	&dev_attr_cur_pwm.attr,
@@ -1514,6 +1561,7 @@ static int pwm_fan_probe(struct platform_device *pdev)
 				fan_data->fan_profile_caps[fan_data->current_profile];
 	}
 	fan_data->fan_cap_pwm = fan_data->fan_pwm[fan_data->fan_state_cap];
+	fan_data->fan_min_pwm = 0;
 
 	fan_data->precision_multiplier =
 			(fan_data->pwm_period * MULTIQP) / fan_data->fan_pwm_max;
