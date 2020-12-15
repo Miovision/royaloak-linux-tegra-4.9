@@ -1,0 +1,455 @@
+/*
+ * Copyright (c) 2020, Miovision.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ */
+#include "common/tegra194-p2888-0001-p2822-0000-common.dtsi"
+#include <dt-bindings/gpio/tegra194-gpio.h>
+
+/ {
+    model = "Royal Oak DCM";
+    compatible = "nvidia,jetson-xavier", "nvidia,tegra194";
+    nvidia,dtsfilename = __FILE__;
+
+    // Default boot ARGS
+    chosen {
+        bootargs ="console=ttyTCU0,115200";
+        board-has-eeprom;
+    };
+
+    host1x {
+        // Disable the display controllers
+        nvdisplay@15200000{
+            status = "disabled";
+        };
+        nvdisplay@15210000{
+            status = "disabled";
+        };
+        nvdisplay@15220000 {
+            status = "disabled";
+        };
+        vi@15c10000 {
+            status = "disabled";
+        };
+        dpaux@155F0000 {
+            status = "disabled";
+        };
+    };
+
+    // Setup the phy to use micrel settings
+    ether_qos@2490000 {
+        mdio {
+            status = "okay";
+            phy0: ethernet-phy@0 {
+                status = "okay";
+                device_type = "ethernet-phy";
+                micrel,copper-mode;
+                micrel,reg-init = <2 8 0xfc1f 0x03e0>;
+                rxc-skew-ps = <3000>;
+                rxdv-skew-ps = <0>;
+                txc-skew-ps = <3000>;
+                txen-skew-ps = <0>;
+            };
+        };
+    };
+
+    // Disable the framebuffer memory reserve
+    reserved-memory {
+        fb0_reserved: fb0_carveout {
+            status = "disabled";
+        };
+        fb1_reserved: fb1_carveout {
+            status = "disabled";
+        };
+        fb2_reserved: fb2_carveout {
+            status = "disabled";
+        };
+        fb3_reserved: fb3_carveout {
+            status = "disabled";
+        };
+    };
+
+    tegra_cec@3960000 {
+        status = "disabled";
+    };
+
+    tegra_xudc: xudc@3550000 {
+        status = "disabled";
+    };
+
+    tegra_xhci: xhci@3610000 {
+        status = "disabled";
+    };
+
+    ufshci@2450000 {
+        status = "disabled";
+        /delete-property/ nvidia,cd-wakeup-capable;
+        /delete-property/ nvidia,enable-hs-mode;
+    };
+
+    i2c@31e0000 {
+        status = "disabled";
+    };
+
+    i2c@31c0000 {
+        status = "disabled";
+    };
+
+    sdhci@3400000 {
+        status = "disabled";
+    };
+
+    // Disable the battery backup charging as we are using a coin cell.
+    bpmp_i2c {
+        p2888_spmic: spmic@3c {
+            /delete-node/ backup-battery;
+        };
+    };
+
+    //*********************************************************************
+    // Serial UART Setup
+    //*********************************************************************
+    // Xavier Module UART 3 -->  UART 1 (Debug Port)
+    serial@c280000 {
+        compatible = "nvidia,tegra210-uart", "nvidia,tegra114-hsuart", "nvidia,tegra20-uart";
+        console-port;
+        sqa-automation-port;
+        /delete-property/ resets;
+        /delete-property/ reset-names;
+        status = "okay";
+    };
+
+    // Xavier Module UART 0
+    serial@3100000 {
+        status = "disabled";
+    };
+
+    // Xavier Module UART 1
+    serial@3110000 {
+        status = "disabled";
+    };
+
+    // Xavier Module I2C-1 --> Tegra I2C2
+    //		LM75 Temperature      0x49 (Under Xavier)
+    //		LM75 Temperature      0x4B (Ambient)
+    i2c@3160000 {
+         status = "okay";
+
+         lm75@49 {
+            status= "okay";
+            compatible = "national,lm75";
+            reg = <0x49>;
+        };
+
+        lm75@4B {
+            status= "okay";
+            compatible = "national,lm75";
+            reg = <0x4B>;
+        };
+    };
+
+    // Xavier Module I2C-2 --> Pushbutton LED
+    i2c@c240000 {
+        status = "okay";
+
+        ucsi_ccg@8 {
+            status = "disabled";
+        };
+
+        /delete-node/ ucsi_ccg;
+
+        led@64 {
+            status= "okay";
+            compatible = "issi,is31fl3196";
+            led-max-microamp = <10000>;
+            reg = <0x64>;
+
+            led1: led@1 { //BR
+                led-max-microamp = <10000>;
+                label = "BTN_BOTTOM_RIGHT";
+                reg = <1>;
+            };
+            led2: led@2 { // BL
+                led-max-microamp = <10000>;
+                label = "BTN_BOTTOM_LEFT";
+                reg = <2>;
+            };
+            led3: led@3 { //TR
+                led-max-microamp = <10000>;
+                label = "BTN_TOP_RIGHT";
+                reg = <3>;
+            };
+            led4: led@4 { //TL
+                led-max-microamp = <10000>;
+                label = "BTN_TOP_LEFT";
+                reg = <4>;
+            };
+        };
+
+    };
+
+    //*********************************************************************
+    // SPI Setup
+    //
+    // Notes:
+    //		Xavier supports up to 65Mhz SPI clocks.
+    //*********************************************************************
+    // Xavier Module SPI 1--> Tegra SPI 1 (TPM)
+    spi@3210000 {
+        status = "okay";
+        // Not actually 100% sure this does anything, it was suggested on the NVidia forums. The kernel doesn't
+        // look for this, but possibly one of the boot loaders does. This is suppose to disable power management
+        // on the interface.
+        nvidia,disable-runtime-pm;
+
+        // The PINMUX needed to be adjusted to put the CS line as a GPIO pin which is software controlled,
+        // the hardware control was dropping the CS line between transactions resetting the TPM.
+        cs-gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Z,6) GPIO_ACTIVE_HIGH>;
+
+        spi@0 {
+            reg = <0x0>;
+            compatible = "tcg,tpm_tis-spi";
+            spi-max-frequency = <10000000>;
+            controller-data {
+                // This setting along with the cs-gpios keeps the CS active during the full transaction.
+                nvidia,clk-delay-between-packets = <0x1>;
+            };
+        };
+    };
+
+    // Delete this because it was using one of the GPIOs for the LCD
+    /delete-node/ bluedroid_pm;
+
+    backlight: backlight {
+        status = "okay";
+        compatible = "pwm-backlight";
+        pwm-gpio = <&tegra_main_gpio TEGRA194_MAIN_GPIO(N, 1) GPIO_ACTIVE_HIGH>;
+        pwms = <&tegra_pwm1 0 40161>;
+        power-supply = <&battery_reg>;
+        max-brightness = <255>;
+        default-brightness = <255>;
+    };
+
+    // Xavier Module SPI 2 --> Tegra SPI 2 (LCD, )
+    spi@c260000 { // 3230000
+        status = "okay";
+
+        display@0 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            compatible = "ilitek,ili9341";
+            reg = <0x0>;
+            bgr;
+            spi-max-frequency = <6000000>;
+	        reset-gpios =  <&tegra_main_gpio TEGRA194_MAIN_GPIO(M, 6) 0>;
+            dc-gpios =  <&tegra_aon_gpio TEGRA194_AON_GPIO(EE, 0) GPIO_ACTIVE_HIGH>;
+            backlight = <&backlight>;
+            rotate = <270>;
+            regwidth = <8>;
+            buswidth = <8>;
+            verbose = <3>;
+        };
+    };
+
+    //*********************************************************************
+    // GPIO Input Buttons, configured to trigger keyboard events.
+    //*********************************************************************
+
+   gpio-keys {
+        compatible = "gpio-keys";
+        gpio-keys,name = "gpio-keys";
+
+        // BUT_CENTERn => GPIO18 => SOC_GPIO40 GPIO03 => P(Q,4) *
+        button_center {
+            label = "BTN-CENTERn";
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Q, 4) GPIO_ACTIVE_HIGH>;
+            linux,code = <KEY_ENTER>;
+        };
+
+        // BUT_UPn => GPIO33 => SOC_GPIO05  GPIO3 => P(P,5) *
+        button_up {
+            label = "BTN-UPn";
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(P, 5) GPIO_ACTIVE_HIGH>;
+            linux,code = <KEY_UP>;
+        };
+
+        // BUT_DOWNn => GPIO17 => SOC_GPIO21 GPIO3 => P(Q,1) *
+        button_down {
+            label = "BTN-DOWNn";
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(Q, 1) GPIO_ACTIVE_HIGH>;
+            linux,code = <KEY_DOWN>;
+        };
+
+        // BUT_LEFTn => GPIO29 => SOC_GPIO31   GPIO3 => P(S,6) *
+        button_left {
+            label = "BTN-LEFTn";
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(S, 6) GPIO_ACTIVE_HIGH>;
+            linux,code = <KEY_LEFT>;
+        };
+
+        // BUT_RIGHTn => GPIO11 => SOC_GPIO30   GPIO3 => P(S,5) *
+        button_right {
+            label = "BTN-RIGHTn";
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(S, 5) GPIO_ACTIVE_HIGH>;
+            linux,code = <KEY_RIGHT>;
+        };
+    };
+
+    // Deletes some nodes that we aren't using
+#if TEGRA_XUSB_PADCONTROL_VERSION >= DT_VERSION_2
+	xusb_padctl@3520000 {
+		ports {
+            /delete-node/ usb2-3;
+        };
+    };
+#endif
+
+	plugin-manager {
+        /delete-node/ usb-vbus-en0-gpio-value;
+    };
+
+    fixed-regulators {
+        /delete-node/ regulator@107;
+        /delete-node/ regulator@114;
+    };
+
+    //*********************************************************************
+    // GPIO Setup
+    //*********************************************************************
+    gpio@2200000 {
+        /////////////////////////////////////
+        // Delete unneeded GPIOs
+        /////////////////////////////////////
+        /delete-node/ pcie-reg-enable;
+        /delete-node/ wifi-enable;
+
+        /////////////////////////////////////
+        // Input Power good
+        /////////////////////////////////////
+        // PM_CTM_PWR_GOOD => GPIO36 => SOC_GPIO53  => GPIO3 P(N,0) *
+        ctm_pwr_good {
+            status = "okay";
+            input;
+            gpio-hog;
+            gpios = <TEGRA194_MAIN_GPIO(N, 0) GPIO_ACTIVE_HIGH>;
+            line-name = "CTM_PWR_GOOD";
+        };
+
+        /////////////////////////////////////
+        // Over Temp Shutdown
+        /////////////////////////////////////
+        // OVERTEMP_SHDN => GPIO23 => USB_VBUS_EN1  => GPIO3 P(Z,2) *
+        overtemp_shdn {
+            status = "okay";
+            input;
+            gpio-hog;
+            gpios = <TEGRA194_MAIN_GPIO(Z, 2) GPIO_ACTIVE_HIGH>;
+            line-name = "OVERTEMP_SHDN";
+        };
+
+        /////////////////////////////////////
+        // USB
+        /////////////////////////////////////
+        // USB0_EN => GPIO22 => USB_VBUS_EN0  => GPIO3 P(Z,1) *
+
+        usb0_enable {
+            status = "okay";
+            gpio-hog;
+            output-low;
+            gpios = <TEGRA194_MAIN_GPIO(Z, 1) GPIO_ACTIVE_HIGH>;
+            line-name = "USB0_ENABLEn";
+        };
+
+        //USB_ID => GPIO30 => GPIO20 => GPIO3 P(Q,0) *
+        usb0_id {
+            status = "okay";
+            input;
+            gpio-hog;
+            gpios = <TEGRA194_MAIN_GPIO(Q, 0) GPIO_ACTIVE_HIGH>;
+            line-name = "USB0_ID";
+        };
+
+        // TPM_RSTn => GPIO24 => DP_AUX_CH3_HPD => GPIO3 P(M,3) *
+        tpm_rst {
+            status = "okay";
+            gpio-hog;
+            output-high;
+            gpios = <TEGRA194_MAIN_GPIO(M, 3) GPIO_ACTIVE_HIGH>;
+            line-name = "TPM_RSTn";
+        };
+
+        // TPM_IRQn => GPIO34 => SOC_GPIO06 => GPIO3 P(P,6) *
+        tpm_irq {
+            status = "okay";
+            gpio-hog;
+            input;
+            gpios = <TEGRA194_MAIN_GPIO(P, 6) GPIO_ACTIVE_HIGH>;
+            line-name = "TPM_IRQ";
+        };
+
+    };
+
+    gpio@c2f0000 {
+        // Indicates that system power has been lost.
+        // PFI stands for power fault indicator.
+        backup_pfi {
+            status = "okay";
+            input;
+            gpio-hog;
+            gpios = <TEGRA194_AON_GPIO(AA, 5) GPIO_ACTIVE_HIGH>;
+            line-name = "BACKUP_PFI";
+        };
+
+        //USB_VBUS_DET => GPIO10 => CAN1_WAKE => GPIO3 P(BB,2) *
+        usb0_vbus_detect {
+            status = "okay";
+            input;
+            gpio-hog;
+            gpios = <TEGRA194_AON_GPIO(BB, 2) GPIO_ACTIVE_HIGH>;
+            line-name = "USB0_VBUS_DETECTn";
+        };
+    };
+
+    /////////////////////////////////////
+    // Output Test LEDs
+    /////////////////////////////////////
+
+    leds {
+        status = "okay";
+        compatible = "gpio-leds";
+
+        //TEST_LED1_G => GPIO_21  3.3v
+        //GPIO_21 => DAP6_SCLK GPIO3 => P(A,0) *
+        test_led_g {
+            label = "TEST_LED1_G";
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(A, 0) GPIO_ACTIVE_HIGH>;
+            default-state = "off";
+            linux,default-trigger = "none";
+        };
+
+        //TEST_LED1_B => GPIO 04  3.3v
+        //GPIO_04 => DAP6_DIN GPIO3 => P(A,02) *
+        test_led_b {
+            label = "TEST_LED1_B";
+            gpios = <&tegra_main_gpio TEGRA194_MAIN_GPIO(A, 2) GPIO_ACTIVE_HIGH>;
+            default-state = "off";
+            linux,default-trigger = "none";
+        };
+
+        //TEST_LED1_O => GPIO 09  3.3v
+        //GPIO_09 => CAN1_EN GPIO3 => P(BB,1) *
+        test_led_o {
+            label = "TEST_LED1_O";
+            gpios = <&tegra_aon_gpio TEGRA194_AON_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
+            default-state = "off";
+            linux,default-trigger = "none";
+        };
+     };
+};
