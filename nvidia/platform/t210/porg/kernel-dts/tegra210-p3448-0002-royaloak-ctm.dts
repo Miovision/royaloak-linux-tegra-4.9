@@ -155,7 +155,8 @@
     // The plugin-manager settings disable SDIO support on the interface, this
     // overrides the override to remove the setting.
     plugin-manager {
-        fragement@10 {
+        // This override is for L4T-r32.4, on L4T-r32.3.1 this use to be fragment@10
+        fragement@13 {
             override@1 {
                 _overlay_ {
                     /delete-property/ no-sdio;
