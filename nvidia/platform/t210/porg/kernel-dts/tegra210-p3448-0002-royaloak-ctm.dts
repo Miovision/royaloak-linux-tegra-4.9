@@ -201,10 +201,11 @@
         status = "okay";
     };
 
-    // Nano Module UART 1 --> Tegra UART 2 (Unused GPIOs)
+    // Nano Module UART 1 --> Tegra UART 2 (Connected to DCM)
     serial@70006040 {
-        status = "disabled";
-    };
+		compatible = "nvidia,tegra114-hsuart";
+		status = "okay";
+	};
 
     // Nano Module UART 0 --> Tegra UART 3 (Bluetooth M.2 Key E)
     serial@70006200 {
@@ -287,14 +288,25 @@
     };
 
     // Nano Module I2C-2 --> Tegra I2C3
-    //		MMA8452               0x1C (Accelerometer)
+    //		MMA8452               0x1C (Accelerometer) (P1 & P2)
+    //		IIS2DH                0x18 (Accelerometer) ( >= P3)
     //		SSD M.2 Interface	  ????
     i2c@7000c500 {
         status = "okay";
 
+        // LEGACY: Used on P2 variant of the CTM
         mma8452@1c {
             compatible = "fsl,mma8452";
             reg = <0x1c>;
+            interrupt-parent = <&gpio>;
+            interrupts = <TEGRA_GPIO(J, 5) 0x01>;
+            interrupt-names = "INT1";
+        };
+
+        // Added in the P3 variant of the CTM
+        iis2dh@18 {
+            compatible = "st,iis2dh_accel";
+            reg = <0x18>;
             interrupt-parent = <&gpio>;
             interrupts = <TEGRA_GPIO(J, 5) 0x01>;
             interrupt-names = "INT1";
@@ -515,7 +527,7 @@
         compatible = "gpio-leds";
 
         heart-beat {
-            gpios = <&gpio TEGRA_GPIO(G, 0) GPIO_ACTIVE_HIGH>;
+            gpios = <&gpio TEGRA_GPIO(J, 4) GPIO_ACTIVE_HIGH>;
             default-state = "off";
             linux,default-trigger = "heartbeat";
         };
