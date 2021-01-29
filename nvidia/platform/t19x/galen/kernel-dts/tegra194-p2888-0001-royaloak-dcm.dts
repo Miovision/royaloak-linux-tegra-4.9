@@ -126,14 +126,14 @@
         status = "okay";
     };
 
-    // Xavier Module UART 0
+    // Xavier Module UART 1
     serial@3100000 {
         status = "disabled";
     };
 
-    // Xavier Module UART 1
+    // Xavier Module UART 2 - Connected to CTM
     serial@3110000 {
-        status = "disabled";
+        status = "okay";
     };
 
     // Xavier Module I2C-1 --> Tegra I2C2
