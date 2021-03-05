@@ -433,7 +433,7 @@
 	};
 	
 	i2c@c250000 {
-		status="disabled";
+		status="okay";
 	};
 	
 	cpus {
