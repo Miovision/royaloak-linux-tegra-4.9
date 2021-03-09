@@ -106,12 +106,6 @@
         status = "disabled";
     };
 
-    // Disable the battery backup charging as we are using a coin cell.
-    bpmp_i2c {
-        p2888_spmic: spmic@3c {
-            /delete-node/ backup-battery;
-        };
-    };
 
     //*********************************************************************
     // Serial UART Setup
