@@ -109,7 +109,12 @@
     // Disable the battery backup charging as we are using a coin cell.
     bpmp_i2c {
         p2888_spmic: spmic@3c {
-            /delete-node/ backup-battery;
+            backup-battery {
+                backup-battery-charging-current = <100>;
+                backup-battery-charging-voltage = <3000000>;
+                backup-battery-output-resister = <100>;
+                status = "disabled";
+            };
         };
     };
 
