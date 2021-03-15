@@ -114,7 +114,7 @@
                 backup-battery-charging-current = <100>;
                 backup-battery-charging-voltage = <3000000>;
                 backup-battery-output-resister = <100>;
-                status = "okay";
+                status = "disabled";
             };
         };
     };
