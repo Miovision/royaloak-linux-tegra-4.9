@@ -437,7 +437,17 @@ static int max77620_init_backup_battery_charging(struct max77620_chip *chip)
 			dev_err(dev, "Failed to update CNFGBBC: %d\n", ret);
 		return ret;
 	}
-
+	
+	/* Force disable of the battery charger, we are using a coin cell. */ 
+	if (!of_device_is_available(np)) {
+		ret = regmap_write(chip->rmap, MAX77620_REG_CNFGBBC, 0x8);
+		if (ret < 0){
+			dev_err(dev, "Reg 0x%02x write 0x8 failed, %d\n", MAX77620_REG_CNFGBBC, ret);
+			return ret;
+		}
+		return 0;
+	}
+	
 	ret = of_property_read_u32(np,
 			"backup-battery-charging-current", &pval);
 	if (ret < 0)
