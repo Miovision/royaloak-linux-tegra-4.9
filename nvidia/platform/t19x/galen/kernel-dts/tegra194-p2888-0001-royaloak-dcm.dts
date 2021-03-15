@@ -106,8 +106,8 @@
         status = "disabled";
     };
 
-    // Enables the battery backup charging, this need to be enabed here to work properly when disabled.
-    // This is disabled at runtime since we are using a coin cell.
+    // The status flag is not respected by the driver.
+    // This is disabled in the driver at runtime since we are using a coin cell.
     bpmp_i2c {
         p2888_spmic: spmic@3c {
             backup-battery {
