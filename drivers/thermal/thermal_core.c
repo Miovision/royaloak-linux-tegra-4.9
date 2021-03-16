@@ -445,8 +445,8 @@ static void handle_critical_trips(struct thermal_zone_device *tz,
 
 	if (trip_type == THERMAL_TRIP_CRITICAL) {
 		dev_emerg(&tz->device,
-			  "critical temperature reached(%d C),shutting down\n",
-			  tz->temperature / 1000);
+			  "critical temperature reached (%d mC) current temp (%d mC), shutting down\n",
+			  trip_temp, tz->temperature);
 		tz->passive_delay = 0;
 		tz->polling_delay = 0;
 		orderly_poweroff(true);
