@@ -546,9 +546,6 @@
         #address-cells = <1>;
         #size-cells = <0>;
 
-        //pinctrl-names = "bitbangmdio";
-        //pinctrl-0 = <&pinctrl_mdio1_state>;
-
         interrupt-parent = <&gpio>;
         interrupts = <TEGRA_GPIO(E, 2) 8>;
 
@@ -556,6 +553,22 @@
                  &gpio TEGRA_GPIO(E, 3) GPIO_ACTIVE_HIGH
                 >;
 
+        // Expose the 1B & 1C phys on the switch to user space properly on the main mdio bus. Defining these
+        // In the internal switch MDIO below uses an undefined MDIO bus for some reason. The phy's attached to ports work
+        // properly however.
+        global1: ethernet-phy@1b {
+            compatible = "ethernet-phy-id0141.0f90";
+            reg = <0x1b>;
+            broken-turn-around;
+        };
+
+        global2: ethernet-phy@1c {
+            compatible = "ethernet-phy-id0141.0f90";
+            reg = <0x1c>;
+            broken-turn-around;
+        };
+
+        // Define the switch configuration.
         switch0: switch@0 {
             compatible = "marvell,mv88e6190";
             #address-cells = <1>;
@@ -637,59 +650,46 @@
                     reg = <1>;
                     broken-turn-around;
                 };
+
                 switch0phy2: ethernet-phy@2 {
                     compatible = "ethernet-phy-id0141.0f90";
                     reg = <2>;
                     broken-turn-around;
                 };
+
                 switch0phy3: ethernet-phy@3 {
                     compatible = "ethernet-phy-id0141.0f90";
                     reg = <3>;
                     broken-turn-around;
                 };
+
                 switch0phy4: ethernet-phy@4 {
                     compatible = "ethernet-phy-id0141.0f90";
                     reg = <4>;
                     broken-turn-around;
                 };
+
                 switch0phy5: ethernet-phy@5 {
                     compatible = "ethernet-phy-id0141.0f90";
                     reg = <5>;
                     broken-turn-around;
                 };
+
                 switch0phy6: ethernet-phy@6 {
                     compatible = "ethernet-phy-id0141.0f90";
                     reg = <6>;
                     broken-turn-around;
                 };
+
                 switch0phy7: ethernet-phy@7 {
                     compatible = "ethernet-phy-id0141.0f90";
                     reg = <7>;
                     broken-turn-around;
                 };
+
                 switch0phy8: ethernet-phy@8 {
                     compatible = "ethernet-phy-id0141.0f90";
                     reg = <8>;
-                    broken-turn-around;
-                };
-                switch0phy9: ethernet-phy@9 {
-                    compatible = "ethernet-phy-id0141.0f90";
-                    reg = <9>;
-                    broken-turn-around;
-                };
-                switch0phya: ethernet-phy@a {
-                    compatible = "ethernet-phy-id0141.0f90";
-                    reg = <0xa>;
-                    broken-turn-around;
-                };
-                switch0phy1b: ethernet-phy@1b {
-                    compatible = "ethernet-phy-id0141.0f90";
-                    reg = <0x1b>;
-                    broken-turn-around;
-                };
-                switch0phy1c: ethernet-phy@1c {
-                    compatible = "ethernet-phy-id0141.0f90";
-                    reg = <0x1c>;
                     broken-turn-around;
                 };
             };
