@@ -285,6 +285,14 @@
             reg = <0x4b>;
         };
 
+        iis2dh@18 {
+            compatible = "st,iis2dh_accel";
+            reg = <0x18>;
+            interrupt-parent = <&gpio>;
+            interrupts = <TEGRA_GPIO(J, 5) 0x01>;
+            interrupt-names = "INT1";
+        };
+
     };
 
     // Nano Module I2C-2 --> Tegra I2C3
@@ -303,7 +311,7 @@
             interrupt-names = "INT1";
         };
 
-        // Added in the P3 variant of the CTM
+        // LEGACY: Added in the P3 variant of the CTM
         iis2dh@18 {
             compatible = "st,iis2dh_accel";
             reg = <0x18>;
@@ -698,4 +706,3 @@
     };
 
 };
-
