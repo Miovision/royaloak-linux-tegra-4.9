@@ -21,6 +21,8 @@
 
 #define REG_WHOAMI_ADDR			0x0f
 #define REG_WHOAMI_VAL			0x33
+
+// Support for LISDTW12TR
 #define REG_WHOAMI_VAL2			0x44
 
 #define REG_CTRL1_ADDR			0x20
