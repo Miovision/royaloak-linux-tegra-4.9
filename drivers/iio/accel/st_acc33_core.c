@@ -22,6 +22,9 @@
 #define REG_WHOAMI_ADDR			0x0f
 #define REG_WHOAMI_VAL			0x33
 
+// Support for LISDTW12TR
+#define REG_WHOAMI_VAL2			0x44
+
 #define REG_CTRL1_ADDR			0x20
 #define REG_CTRL1_ODR_MASK		GENMASK(7, 4)
 
@@ -410,9 +413,9 @@ static int st_acc33_check_whoami(struct st_acc33_hw *hw)
 		return err;
 	}
 
-	if (data != REG_WHOAMI_VAL) {
-		dev_err(hw->dev, "wrong whoami {%02x-%02x}\n",
-			data, REG_WHOAMI_VAL);
+	if (data != REG_WHOAMI_VAL && data != REG_WHOAMI_VAL2) {
+		dev_err(hw->dev, "wrong whoami {%02x-%02x or %02x}\n",
+			data, REG_WHOAMI_VAL,REG_WHOAMI_VAL2);
 		return -ENODEV;
 	}
 
