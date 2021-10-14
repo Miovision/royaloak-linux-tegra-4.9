@@ -340,14 +340,7 @@
 			status = "disabled";
 		};
 
-		ina3221x@40 {
-			status = "disabled";
-		};
-
-		ina3221x@41 {
-			status = "disabled";
-		};
-
+		// Disabling 42 and 43 because they are only on the devkit.
 		ina3221x@42 {
 			status = "disabled";
 		};
