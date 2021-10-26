@@ -25,10 +25,6 @@
  *   node is removed from the DTB when booting on other slots
  * - smartsense,txslots = ""; removes the node from all slots, most useful to
  *   clean up loose ends from the Tegra platform/SoC DTSIs
- *
- * NOTE: Currently this only works for 1st-level nodes (root being top-level).
- *       If deeper nesting is required, the board support code can be refactored
- *       into a recursive call without too much trouble.
  */
 
 #include <t18x-common-platforms/tegra186-quill-common-p3310-1000-a00.dtsi>
@@ -358,21 +354,25 @@
 		};
 
 		lm75@48 {
+			smartsense,txslots = "a";
 			compatible = "national,lm75";
 			reg = <0x48>;
 		};
 		
 		lm75@49 {
+			smartsense,txslots = "a";
 			compatible = "national,lm75";
 			reg = <0x49>;
 		};
 		
 		lm75@4a {
+			smartsense,txslots = "a";
 			compatible = "national,lm75";
 			reg = <0x4a>;
 		};
 		
 		lm63@4c {
+			smartsense,txslots = "a";
 			compatible = "national,lm63";
 			reg = <0x4c>;
 		};
