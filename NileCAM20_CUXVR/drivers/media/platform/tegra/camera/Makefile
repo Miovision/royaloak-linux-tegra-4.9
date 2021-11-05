@@ -1,6 +1,6 @@
 ifneq (,$(filter $(CONFIG_VIDEO_ECAM),y m))
 	ccflags-y += -Wno-unused-variable -I$(srctree)/drivers/media/platform/tegra/
-	obj-m	+=  ar0230.o
+	obj-$(CONFIG_VIDEO_ECAM)	+=  ar0230.o
 	ar0230-objs :=  ar0230_common.o serdes.o pca9685.o 
 endif
 

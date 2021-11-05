@@ -9,6 +9,7 @@ ifeq ($(KERNEL_OVERLAYS),)
 KERNEL_OVERLAYS :=
 KERNEL_OVERLAYS += $(CURDIR)/nvidia
 KERNEL_OVERLAYS += $(CURDIR)/nvidia/nvgpu
+KERNEL_OVERLAYS += $(CURDIR)/NileCAM20_CUXVR
 else
 override KERNEL_OVERLAYS := $(subst :, ,$(KERNEL_OVERLAYS))
 endif

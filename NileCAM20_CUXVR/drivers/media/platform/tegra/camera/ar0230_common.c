@@ -213,7 +213,7 @@ static int mcu_cam_stream_off(struct i2c_client *client)
 	/* call ISP init command */
 	struct camera_common_data *s_data = to_camera_common_data(&client->dev);
 	struct cam *priv = (struct cam *)s_data->priv;
-	uint8_t mc_data[512], mc_ret_data[512];
+	uint8_t mc_data[512];
 
 	/*lock semaphore*/
 	mutex_lock(&priv->mcu_i2c_mutex);
@@ -458,8 +458,7 @@ static int cam_s_parm(struct v4l2_subdev *sd, struct v4l2_streamparm *param)
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	struct camera_common_data *s_data = to_camera_common_data(&client->dev);
 	struct cam *priv = (struct cam *)s_data->priv;
-	int ret = 0, err = 0, retry = 3;
-	uint16_t data = 0;
+	int ret = 0, err = 0;
 
 	if (!priv || !priv->pdata) {
 		return -EINVAL;
@@ -518,8 +517,7 @@ static int cam_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cf
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	struct camera_common_data *s_data = to_camera_common_data(&client->dev);
 	struct cam *priv = (struct cam *)s_data->priv;
-	int flag = 0, err = 0, retry = 3;
-	uint16_t data = 0;
+	int flag = 0, err = 0;
 
 	if (!priv || !priv->pdata)
 		return -EINVAL;
@@ -1289,7 +1287,7 @@ static int mcu_jump_bload(struct i2c_client *client)
 {
 	uint32_t payload_len = 0;
 	int err = 0;
-	uint8_t mc_data[512], mc_ret_data[512];
+	uint8_t mc_data[512];
 
 	/*lock semaphore */
 	mutex_lock(&g_i2c_mutex);
