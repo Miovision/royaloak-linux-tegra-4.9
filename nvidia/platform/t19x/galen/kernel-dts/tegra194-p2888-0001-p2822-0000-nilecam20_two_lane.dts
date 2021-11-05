@@ -1,0 +1,25 @@
+/*
+ * tegra194-p2888-0001-p2822-0000-nilecam20_two_lane.dts : DTS file for Jetson AGX Xavier
+ * to enable e-con systems ar0230 camera modules.
+ *
+ * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ */
+
+#include "tegra194-p2888-0001-p2822-0000.dts"
+#include "common/tegra194-p2822-nilecam20_two_lane.dtsi"
+
+/ {
+	nvidia,dtsfilename = __FILE__;
+
+};
+

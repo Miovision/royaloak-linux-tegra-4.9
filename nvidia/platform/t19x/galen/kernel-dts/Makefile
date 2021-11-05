@@ -15,6 +15,7 @@ dtb-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-0001-royaloak-dcm.dtb
 dtb-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-0006-e3366-1199.dtb
 dtb-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-as-0006-p2822-0000.dtb
 dtb-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-as-p3668-p2822-0000.dtb
+dtb-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-0001-p2822-0000-nilecam20_two_lane.dtb
 dtbo-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-0001-p2822-0000-hdr40.dtbo
 dtbo-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-0001-p2822-0000-adafruit-sph0645lm4h.dtbo
 dtbo-$(CONFIG_ARCH_TEGRA_19x_SOC) += tegra194-p2888-0001-p2822-0000-adafruit-uda1334a.dtbo

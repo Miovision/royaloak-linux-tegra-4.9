@@ -118,3 +118,6 @@ all.config
 
 # fetched Android config fragments
 kernel/configs/android-*.cfg
+
+# Allow E-Con binary files
+!NileCAM20_CUXVR.bin
