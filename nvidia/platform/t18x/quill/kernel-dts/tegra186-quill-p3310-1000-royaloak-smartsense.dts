@@ -62,6 +62,21 @@
 		nvidia,tegra-joint_xpu_rail;
 	};
 
+    //***********************************************************************
+    // Update the vGIC to enable interrupt virtualization. This significatly
+    // impoves the interrupt handling performance in the virtual containers.
+    //
+    // See: https://github.com/BaoqianWang/VirtualizationOnJetsonTX2
+    //***********************************************************************
+
+    intc: interrupt-controller@3881000 {
+		reg = <0x0 0x03881000 0x0 0x00001000>,
+			  <0x0 0x03882000 0x0 0x00002000>,
+			  <0x0 0x03884000 0x0 0x00002000>,
+			  <0x0 0x03886000 0x0 0x00002000>;
+		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+    };
+
 	aliases {
         mdio-gpio0 = &mdio1;
 	};
