@@ -29,6 +29,21 @@
     compatible = "nvidia,jetson-nano", "nvidia,tegra210";
     nvidia,dtsfilename = __FILE__;
 
+    //***********************************************************************
+    // Update the vGIC to enable interrupt virtualization. This significatly
+    // impoves the interrupt handling performance in the virtual containers.
+    //
+    // See: https://github.com/lucaszanella/jetson_nano_kvm
+    //***********************************************************************
+
+    intc: interrupt-controller {
+        reg = <0x0 0x50041000 0x0 0x1000
+               0x0 0x50042000 0x0 0x2000
+               0x0 0x50044000 0x0 0x2000
+               0x0 0x50046000 0x0 0x2000>;
+        interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+    };
+
     //*********************************************************************
     // host1x Setup
     //*********************************************************************
