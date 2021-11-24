@@ -288,7 +288,7 @@ extern void (*free_pdir)(struct smmu_as *as);
 int tegra_smmu_suspend(struct device *dev);
 int tegra_smmu_resume(struct device *dev);
 
-#ifdef CONFIG_TEGRA_HV_MANAGER
+#if defined(CONFIG_TEGRA_HV_MANAGER) && defined(CONFIG_TEGRA_IOMMU_SMMU_HV)
 extern int tegra_smmu_probe_hv(struct platform_device *pdev,
 					struct smmu_device *smmu);
 #else
