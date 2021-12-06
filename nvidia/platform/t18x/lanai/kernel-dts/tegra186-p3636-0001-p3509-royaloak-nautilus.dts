@@ -210,6 +210,101 @@
 		};
 	};
 
+	// TX2 NX Module SPI 0 --> Tegra SPI 1 (TPM)
+	//spi@70000ad4 { // MH: I don't think this is the address, but it might be.
+	spi@3210000 {
+		status = "okay";
+		// Not actually 100% sure this does anything, it was suggested on the NVidia forums. The kernel doesn't
+		// look for this, but possibly one of the boot loaders does. This is suppose to disable power management
+		// on the interface.
+		nvidia,disable-runtime-pm;
+
+		// The PINMUX needed to be adjusted to put the CS line as a GPIO pin which is software controlled,
+		// the hardware control was dropping the CS line between transactions resetting the TPM.
+		cs-gpios = <&gpio TEGRA_GPIO(C, 3) GPIO_ACTIVE_HIGH>;
+
+		spi@0 {
+			reg = <0x0>;
+			compatible = "tcg,tpm_tis-spi";
+			spi-max-frequency = <10000000>;
+			controller-data {
+				// This setting along with the cs-gpios keeps the CS active during the full transaction.
+				nvidia,clk-delay-between-packets = <0x1>;
+			};
+		};
+	};
+
+
+	// TX2 NX Module I2C-1 --> X2 I2C2
+	// U24 -> 0x70 -> 1V2 vs 1V2_CAM
+	// U39 -> 0x71 -> 1V8 vs 1V8_CAM
+	// U40 -> 0x72 -> 3V3 vs 3V3_CAM
+	// U41 -> 0x73 -> 12V vs 12V_CAM
+	// U45 -> 0x74 -> 5V vs 5V_NX
+	// U15 -> 0x77 -> 3V3 vs 3V3_SD
+	// U46 -> 0x78 -> 3V3 vs 3V3_CELL_UNFLT
+	// U47 -> 0x7c -> 3V3 vs 3V3_WIFI_UNFLT
+	// U42 -> 0x7f -> 36Vin vs 36Vin_LCD
+	// U6  -> 0x48 -> Ambient Temperature
+	// U2  -> 0x20 -> Board Id / Rev
+	i2c@c240000 {
+		status = "okay";
+		max9611@70 {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x70>;
+		};
+		max9611@71 {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x71>;
+		};
+		max9611@72 {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x72>;
+		};
+		max9611@73 {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x73>;
+		};
+		max9611@74 {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x74>;
+		};
+		max9611@77 {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x77>;
+		};
+		max9611@78 {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x78>;
+		};
+		max9611@7c {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x7c>;
+		};
+		max9611@7f {
+			status = "okay";
+			compatible = "maxim,max9611";
+			reg = <0x7f>;
+		};
+		lm75@48 {
+			status= "okay";
+			compatible = "national,lm75";
+			reg = <0x48>;
+		};
+		tca6408@20 {
+			status= "okay";
+			compatible = "ti,tca6408";
+			reg = <0x48>;
+		}
+	};
 	i2c@c250000 {
 		status = "okay";
 	};
